@@ -1,0 +1,44 @@
+\documentclass[12pt,twoside]{book}
+%\usepackage{slovak}
+\usepackage[utf8x]{inputenc}
+%\usepackage{url}
+\usepackage{amsfonts , amsmath, amsfonts, amssymb}
+\usepackage{a4wide}
+%\usepackage{alltt}
+%\usepackage{epsfig}
+\usepackage{graphicx} 
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{enumerate}
+\usepackage{subfigure}
+\usepackage{listings}
+\usepackage{ifthen}
+%\usepackage{natbib}
+\usepackage[normalem]{ulem}
+
+\lstset{language=python, numbers=left, frame=shadowbox, tabsize=2}
+
+\renewcommand\baselinestretch{1.1} %riadkovanie jeden a pol
+
+\usepackage{amsmath}
+
+\input ../tex/macro.tex
+
+\input ../tex/config.tex
+
+
+\ifx\pdfoutput\undefined\relax\else\pdfinfo{ /Title (\mftitle) /Author (\mfauthor) /Creator (PDFLaTeX) } \fi
+\begin{document}
+
+\frontmatter
+
+\input ../tex/frontMatter.tex
+
+\mainmatter
+
+\input mainMatter.tex
+
+\backmatter
+
+\input ../tex/backMatter.tex
+
+\end{document}
