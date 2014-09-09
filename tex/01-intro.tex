@@ -1,58 +1,25 @@
 \chapter{Introduction}
 
+Obtaining DNA sequence of an organism is a difficult problem
+as modern sequencing technologies can only "read" small pieces
+of the genome (called reads). 
+These reads are joined together using programs called genome assemblers
+in the process called genome assembly.
+Nowadays we have a surprising variety of sequencing technologies,
+each with different characteristics. For example,
+Illumina platforms have high accuracy, but produce short reads. 
+On the other hand, Pacific Biosciences offer long reads with high number
+of errors. 
 
-In this work we will focus on computational methods for comparative analysis and
-annotation of biological sequences. We will review known models and algorithms
-and propose new methods that will produce alignments and annotations with higher
-quality. Since new technologies are giving us the ability to produce more and
-more data, the automated analysis of such data is necessary and therefore it is
-important to develop such tools.
+Also there are many different assemblers with different algorithmic
+approaches and not all of them can cope with variety of possible input data.
+Also some of the assemblers produce assemblies with errors, so
+there is a need for validation of the assemblies.
 
-By biological sequences we mean either DNA/RNA sequences, which are finite
-sequences over the alphabet $\{A,C,G,T/U\}$ ($T$ is in DNA, $U$ in RNA) or
-protein sequences which are sequences over the alphabet of $20$ amino acids.
-Later in this chapter we will discuss the relationship between these sequences.
-Both problems studied in this proposal, annotation and alignment of biological
-sequences, can be addressed by variants of \abbreviation{hidden Markov
-models}{HMMs}.  Hidden Markov models are generative probabilistic models which
-define a probability distribution of sequences with their annotations
-\cite{Durbin1998}. An annotation is the assignments of labels to parts of the
-sequence according their meaning, The labels can represent biological function,
-the origin of a part of the sequence or any other information. HMMs are used for
-probabilistic analysis of sequences in various fields. In our work we focus on
-biological sequences. 
-
-A decoding algorithm is an algorithm that from the input sequence $X$ and HMM
-$H$ computes the annotation of sequence $X$. The goal is to recover the true
-annotation of $X$, but finding such an annotation is impossible due to the
-randomness in the generating process. Therefore the decoding algorithm finds
-some approximation of the true annotation.  In recent years different decoding
-methods were developed to improve the quality of annotations
-\cite{Gross2007,Nanasi2010,Nanasi2010mgr,Truszkowski2011}.  Additionally there
-are many techniques that are used to lower the computational complexity of the
-decoding and training algorithms (training algorithms are algorithms that
-compute the parameters of the model from a training data set).
-
-In the field of comparative analysis of biological sequences we focus on the
-sequence alignment problem. A sequence alignment is a simple data format (or
-data structure) that represents the similarities in the sequences. An alignment
-is created by inserting dashes ('-') into both sequences in a way that the
-sequences have the same length and similar symbols are on the same positions in
-both sequences. In computational biology the alignments are constructed in a way
-that the homologous parts of the sequences are aligned together. Homologous
-sequences are sequences that have evolved from the same part of the sequence of
-the ancestral organism.  The reason for searching and studying homologous
-sequences is that homologous sequences are expected to have the same or similar
-functions in both organisms.  Therefore by studying homologous sequences we can
-transfer knowledge about functions from one species to others.
-
-Alignments can be created using a variant of hidden Markov model called
-\abbreviation{pair hidden Markov model}{pHMM}. A pHMM  that generates three
-objects: two sequences $X,Y$ and their alignment $A$.  By proper decoding method
-we can obtain a good approximation of $A$ for given sequences $X$ and $Y$. Our
-goal is to study decoding methods and models that are used for sequence
-alignment in order to create software that will produce alignments with high
-quality.
+In this work we will review most used algorithm for genome assembly,
+genome assembly validation and probablistic frameworks for evaluation
+genome assembly likelihood. We will propose new methods
+for genome assembly and solve algorithmic problems associated with them.
 
 \section{Structure}
 
@@ -60,28 +27,19 @@ The structure of this document is following. In the rest of this chapter we
 describe necessary biological terms and define several notation used throughout
 the text.
 
-In the second chapter we will discuss the sequence alignment problem and methods
-that create sequence alignments without using pair hidden Markov models. We
-describe basic scoring schemes, algorithms that search for alignments with high
-scores and several approaches for improving the computational complexity of such
-algorithms.
+In the second chapter we will discuss the genome assembly
+problem and algorithms for genome assembly.
+We will also mention several formalizations of genome assembly problem.
 
-The third chapter describes hidden Markov models. We define HMMs and review
-basic algorithms for decoding. We then discuss the highest expected gain
-framework which is a generalization of the well-known decoding algorithms.  We
-also define several variants of HMMs: generalized hidden Markov models,
-high-order HMMs, pair hidden Markov models and their combinations. In the last
-part of the chapter we discuss several algorithmic improvements of standard
-decoding algorithms.
-
-The fourth chapter is dedicated to alignment methods  using pair hidden Markov
-models and their variants and also to other applications of pHMMs. We review
-several pairwise aligners and comparative gene finders and also results
-concerning the quality and biases in the alignments.
+The third chapter describes frameworks for evaluating genome assembly.
+We will describe several algorithms which find errors in the assembly
+using simple statistics. Also we will describe several models
+for evaluation likelihood of an assembly, which can be used
+to compare assemblies.
 
 The fifth chapter contains our PhD project with the proposed directions for our
-research. We want to focus on the improvements and the analysis of the decoding
-algorithms and their application to the sequence alignments. 
+research. We want to focus on using probabilistic framework 
+for genome assembly and on algorithm problems which arise during usage this framework.
 
 \section{Biological Introduction}
 
