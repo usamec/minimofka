@@ -1,0 +1,56 @@
+\chapter{Assembly algorithms}
+
+There are several formulations of the genome assembly problem, but
+most of them are not user in practice.
+
+First of them is a variation of shortest common superstring problem, where we
+almost account for the possibility of sequencing errors \cite{kececioglu1995combinatorial}. 
+
+\begin{definition}{DNA sequence reconstruction problem 1.}
+Given set of reads $\mathcal{F}$ and error rate $\varepsilon$, find
+a shortest sequence $S$ such that for every $A \in \mathcal{F}$ there is a substring
+$B$ of $S$ such that:
+$$min(d(A,B), d(\bar{A}, B)) \leq \varepsilon |A|$$
+\end{definition}
+
+This formulation has several problems. 
+Firstly, it compresses repeated regions in genome. For example take sequence
+$ACGGGGGGGGGGGGTT$ and all of its substrings of length 3. Then the correct
+output for our formulation is $ACGGGTT$.
+
+Secondly, it is ambiguous. For example take sequence
+$ACGGGGTATGGGGCTCGGGGAA$ and all of its substring of length 3. Then the correct
+outputs for our formulation are $ACGGGGTATGGGGCTCGGGGAA$ and
+$ACGGGGCTCGGGGTATGGGGAA$.
+
+A better formulation is given by \cite{myers1995toward}. It also considers
+coverage of output sequence by substring and wants it to be as uniform as possible.
+
+We consider our reconstructed string $S$ and the layout consisting of
+$F$ pairs of integers $(s_i, e_i)$, which indicates starting and ending positions
+of reads in the reconstructed sequence. The layout is $\varepsilon$-valid
+if for each read $A$ the edit distance between $S[s_i:e_i]$ and the read
+is at most $\varepsilon |A|$.
+
+We will now formalize the notion of uniform coverage. Lets consider a observed
+distribution of read start points (the proportion of reads which start before $x$):
+$$D_{obs}(x) = \frac{|\{s_i < x\}|}{F}$$
+
+We now consider a source distribution of a sampling process $D_{src}$ (which is usually
+uniform, but can be nonuniform due to some systematic errors) and define maximum
+deviation between these two distributions:
+$$\delta = max |D_{obs}(x) - D_{src}(x)|$$
+
+Now we can define DNA sequence reconstruction problem in a better way:
+
+\begin{definition}{DNA sequence reconstruction problem 2.}
+Given set of reads $\mathcal{F}$ and error rate $\varepsilon$, find
+a sequence $S$ and $\varepsilon$-valid layout which has minimal
+maximum deviation between observed and source distrition of reads.
+\end{definition}
+
+
+
+\cite{miller2010assembly}
+
+\cite{Medvedev2009}
