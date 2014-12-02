@@ -1,5 +1,7 @@
 \chapter{Assembly algorithms}
 
+\section{Assembly problem formulation}
+
 There are several formulations of the genome assembly problem, but
 most of them are not user in practice.
 
@@ -49,8 +51,31 @@ a sequence $S$ and $\varepsilon$-valid layout which has minimal
 maximum deviation between observed and source distrition of reads.
 \end{definition}
 
+There are still some ambiguities and problems with this formulation.
+One can for example find two solutions which have same maximum deviation
+but differ in one base. There might be also problem with reads which have too many errors,
+which were created by contamination during sequencing process by other DNA.
 
+\section{Assembly algorithms overview}
 
-\cite{miller2010assembly}
+Almost all assembly algorithms used in practice are some form of heuristics
+without well defined formulation, proof of correctness, etc.
+There are well defined algorithms, for example algorithm by \cite{Medvedev2009}
+which uses bidirectional flows, but they practical use is very limited (this one
+assumes error-free reads).
 
-\cite{Medvedev2009}
+The goal of assembly algorithms is to "glue" reads which can be unambiguously glued together.
+They use efficient representation of overlaps between reads and try to resolve
+ambiguous regions using paired end reads and long reads.
+
+The good review of assembly algorithms can be found in \cite{miller2010assembly}.
+They can be divided into two types by representation of overlaps they use.
+The overlap-layout-consensus algorithms use overlap graph, which directly represents
+overlaps between reads. Nowadays this is represented as string graph (TODO cite).
+The other algorithms use deBruijn graphs, which do not work directly with reads, but
+with sequences of $k$-bases ($k$-mers). The nodes in deBruijn graph represent $k$-mers
+and edges represent adjacencies between $k$-mers in reads. 
+
+\section{Overlap-layout-consensus algorithms}
+
+\section{deBruijn graph algorithms}
