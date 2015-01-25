@@ -1,90 +1,15 @@
 \chapter{Introduction}
 
-Obtaining DNA sequence of an organism is a difficult problem
-as modern sequencing technologies can only "read" small pieces
-of the genome (called reads). 
-These reads are joined together using programs called genome assemblers
-in the process called genome assembly.
-Nowadays we have a surprising variety of sequencing technologies,
-each with different characteristics. For example,
-Illumina platforms have high accuracy, but produce short reads. 
-On the other hand, Pacific Biosciences offer long reads with high number
-of errors. 
+\section{Problem of sequence assembly}
 
-Also there are many different assemblers with different algorithmic
-approaches and not all of them can cope with variety of possible input data.
-Also some of the assemblers produce assemblies with errors, so
-there is a need for validation of the assemblies.
+\section{Real-life complications}
 
-In this work we will review most used algorithms for genome assembly,
-genome assembly validation and probablistic frameworks for evaluation
-genome assembly likelihood. We will propose new methods
-for genome assembly and solve algorithmic problems associated with them.
+\subsection{Sequencing technologies}
 
-\section{Structure}
+\subsection{Paired-end reads}
 
-The structure of this document is following. In the rest of this chapter we
-describe necessary biological terms and define several notation used throughout
-the text.
+\subsection{Errors in reads}
 
-In the second chapter we will discuss the genome assembly
-problem and algorithms for genome assembly.
-We will also mention several formalizations of genome assembly problem.
+\section{Overview of known solutions}
 
-The third chapter describes frameworks for evaluating genome assembly.
-We will describe several algorithms which find errors in the assembly
-using simple statistics. Also we will describe several models
-for evaluation likelihood of an assembly, which can be used
-to compare assemblies.
 
-The fourth chapter contains our PhD project with the proposed directions for our
-research. We want to focus on using probabilistic framework 
-for genome assembly and on algorithm problems which arise during usage this framework.
-
-\section{Biological Introduction}
-
-%\todo{zmen nazov kapitoly}
-
-%DNA,RNA,protein, amino-acid, residue, base, gene -- exon, conod, start codon,
-%stop codon, cDNA, intron, splice site, donor, acceptor, intergenic region,
-%homolog,
-
-In this section we review several biological terms that will be needed. More
-information about DNA can be found in
-\cite{BiologyForDummies,UnderstandingBioinformatics}.  Every cell of living
-organisms contains one or several \firstUseOf{DNA} molecules. DNA is a double
-stranded molecule, consisting of two long sequences of \firstUseOf{nucleotides}
-(nucleotides are also referred to as bases or \firstUseOf{residues}). There are
-four types of nucleotides in DNA: adenosine, cytosine, guanine and thymine
-represented by letters $A,C,G$ and $T$ respectively. 
-The strands in DNA are complementary. The
-nucleotides at the same position in two strands are connected by hydrogen bonds
-and are complementary: $A$ is always connected with $T$ and $C$ is always
-connected with $G$. Therefore we can represent DNA by a sequence over alphabet
-$\{A,C,G,T\}$. The complementary strand can be easily computed.
-
-DNA is read using genome sequencing process. This process produces
-set of reads, which are substrings from the original DNA. 
-Depending on the technology these reads have various length and error rates.
-For example Illumina usually produces reads of size around 100 bases with
-error rate around 1\%. Pacbio Biosciences produces
-reads of size from 2000 to 40000 with error rate approximately 15\%.
-Some technologies also produces pairs of reads for which we know
-distance between them, this reads are called paired end reads.
-
-\section{Notations}
-
-In this section we summarize notation used in the following
-chapters.
-
-All sequences, members of sets, vectors, and rows and columns of matrices will
-be indexed from $0$. We will use mostly right-open intervals: $I=[a,b)$ means
-that $a\in I$, but $b\notin I$. 
-
-The element at the $k$-th position (zero based) of string (or sequence) $s$ will
-be written as $s[k]$. The substring $s[i]s[i+1]\dots s[j-1]$ is denoted
-$s[i:j]$.  If $n$ is the length of the string $s$ then $s[:i]$ is equivalent to
-$s[0:i]$ and $s[i:]$ is equivalent to $s[i:n]$.  We will use the terms sequence
-and string interchangeably.
-
-We will denote complementary sequence to sequence $S$ as $\bar{S}$.
