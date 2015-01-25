@@ -2,6 +2,38 @@
 
 \section{Problem of sequence assembly}
 
+DNA sequence of an organism is a string over the four letter alphabet A, C, G, T
+(with usual length between millions to billions characters).
+Current technologies cannot read the whole sequence at once but produce many
+substrings of sequence called fragments (whose positions usually overlaps).
+In most cases locations of substrings are sampled using uniform distribution.
+
+The goal of sequence assembly is to reconstruct original string.
+
+One might thought that shortest common superstring (\cite{maier1977note}) 
+is a good formalization of the problem above. But consider following DNA sequence:
+
+$$AA\textcolor{red}{CGTA}\textcolor{green}{CGTA}\textcolor{blue}{CGTA}GG$$
+
+If our fragments have length 4 and come from all possible positions the shortest
+common superstring would be:
+$$AA\textcolor{red}{CGTA}\textcolor{green}{CGTA}GG$$
+
+In this case we lost one repetitions of repeated sequence. If we assume uniform
+sampling from original sequence we might estimate the number of repeated substring
+by using coverage information (how many fragments cover one position).
+
+But there are also sequences for which we cannot reconstruct the order of elements in
+original sequence, consider the following:
+
+$$AA\textcolor{red}{CTCT}\textcolor{green}{GG}\textcolor{red}{CTCT}\textcolor{blue}{CC}\textcolor{red}{CTCT}TT$$
+
+In this case if have reads of length 4 we cannot distinguish between sequence above and
+sequence:
+
+$$AA\textcolor{red}{CTCT}\textcolor{blue}{CC}\textcolor{red}{CTCT}\textcolor{green}{GG}\textcolor{red}{CTCT}TT$$
+
+
 \section{Real-life complications}
 
 \subsection{Sequencing technologies}
@@ -9,6 +41,8 @@
 \subsection{Paired-end reads}
 
 \subsection{Errors in reads}
+
+\subsection{Reverse complement}
 
 \section{Overview of known solutions}
 
