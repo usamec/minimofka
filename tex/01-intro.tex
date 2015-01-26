@@ -5,7 +5,7 @@
 DNA sequence of an organism is a string over the four letter alphabet A, C, G, T
 (with usual length between millions to billions characters).
 Current technologies cannot read the whole sequence at once but produce many
-substrings of sequence called fragments (whose positions usually overlaps).
+substrings of sequence called fragments or reads (whose positions usually overlaps).
 In most cases locations of substrings are sampled using uniform distribution.
 
 The goal of sequence assembly is to reconstruct original string.
@@ -15,13 +15,13 @@ is a good formalization of the problem above. But consider following DNA sequenc
 
 $$AA\textcolor{red}{CGTA}\textcolor{green}{CGTA}\textcolor{blue}{CGTA}GG$$
 
-If our fragments have length 4 and come from all possible positions the shortest
+If our reads have length 4 and come from all possible positions the shortest
 common superstring would be:
 $$AA\textcolor{red}{CGTA}\textcolor{green}{CGTA}GG$$
 
 In this case we lost one repetitions of repeated sequence. If we assume uniform
 sampling from original sequence we might estimate the number of repeated substring
-by using coverage information (how many fragments cover one position).
+by using coverage information (how many reads cover one position).
 
 But there are also sequences for which we cannot reconstruct the order of elements in
 original sequence, consider the following:
@@ -33,16 +33,61 @@ sequence:
 
 $$AA\textcolor{red}{CTCT}\textcolor{blue}{CC}\textcolor{red}{CTCT}\textcolor{green}{GG}\textcolor{red}{CTCT}TT$$
 
+Due to this, the goal of the sequence assembly is to reconstruct as long as possible
+unambigous parts of the DNA sequence.
 
 \section{Real-life complications}
 
-\subsection{Sequencing technologies}
+In practice there are several complications which make sequence assembly even harder.
+In following text we mention the major ones.
 
-\subsection{Paired-end reads}
+\subsection{Reverse complement}
+
+Each letter (base) from DNA alphabet has the complementary base. This can
+be viewed as homomorphism $h(\cdot)$, where: $h(A) = T, h(C) = G, h(G) = C, h(T) = A$.
+The real DNA is composed from two strings: $S$ and $h(S^R)$ -- the reverse complement.
+During sequencing process the bases can come from both sides of the DNA and
+we do not have information about the side.
 
 \subsection{Errors in reads}
 
-\subsection{Reverse complement}
+In practice the chemical process of sequencing DNA also produces errors.
+Sometimes there are small errors in reads -- i.e. substitutions, insertions
+and deletions. The amount of these errors depends on specific sequencing technology
+(also some technologies have higher amount of substitutions while other
+have high amount of insertions).
+
+There are also reads which do not belong to sequenced genome, but are result
+of some contamination.
+
+\subsection{Paired-end reads}
+
+Some technologies start reading fragments from one end and lose accuracy after
+reading few hundred bases. To capture information which contains longer part of the
+sequence some technologies produce longer fragments from which they readtens to hundreds
+of bases from both sides and do not read bases from middle (since there will be
+too many errors). The result of this process is a pair of reads for which we know approximate
+distance in the DNA sequence.
+
+\subsection{Sequencing technologies}
+
+We summarize currently used sequencing technologies in \ref{tab:techs}.
+This presents additional chalenge for assembling algorithms since they
+cannot be tailored only for one technology, but should work with combination
+of data from many technologies.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+Technology & Read length & Error rate & Paired end reads \\\hline
+Illumina & 50 - 300 & 2\% & Yes\\\hline
+454 & 700 & $0.1\%$ & Yes \\\hline
+PacBio & 2000 - 20000 & $14\%$ & No \\\hline
+\end{tabular}
+\caption{Overview of current sequencing technologies}
+\label{tab:techs}
+\end{table}
 
 \section{Overview of known solutions}
 
