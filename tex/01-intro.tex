@@ -91,4 +91,73 @@ PacBio & 2000 - 20000 & $14\%$ & No \\\hline
 
 \section{Overview of known solutions}
 
+\subsection{Assembly problem formalization}
 
+There are several formulations of the genome assembly problem, but
+most of them are not user in practice.
+
+First of them is a variation of shortest common superstring problem, where we
+almost account for the possibility of sequencing errors \cite{kececioglu1995combinatorial}. 
+
+\begin{definition}{DNA sequence reconstruction problem 1.}
+Given set of reads $\mathcal{F}$ and error rate $\varepsilon$, find
+a shortest sequence $S$ such that for every $A \in \mathcal{F}$ there is a substring
+$B$ of $S$ such that:
+$$min(d(A,B), d(\bar{A}, B)) \leq \varepsilon |A|$$
+\end{definition}
+
+This formulation can be also extended to account for contaminated reads and paired reads.
+As mentioned above this formulation is problematic since it compresses repeated regions
+in the genome.
+
+A better formulation is given by \cite{myers1995toward}. It also considers
+coverage of output sequence by substring and wants it to be as uniform as possible.
+
+We consider our reconstructed string $S$ and the layout consisting of
+$F$ pairs of integers $(s_i, e_i)$, which indicates starting and ending positions
+of reads in the reconstructed sequence. The layout is $\varepsilon$-valid
+if for each read $A$ the edit distance between $S[s_i:e_i]$ and the read
+is at most $\varepsilon |A|$.
+
+We will now formalize the notion of uniform coverage. Lets consider a observed
+distribution of read start points (the proportion of reads which start before $x$):
+$$D_{obs}(x) = \frac{|\{s_i < x\}|}{F}$$
+
+We now consider a source distribution of a sampling process $D_{src}$ (which is usually
+uniform, but can be nonuniform due to some systematic errors) and define maximum
+deviation between these two distributions:
+$$\delta = max |D_{obs}(x) - D_{src}(x)|$$
+
+Now we can define DNA sequence reconstruction problem in a better way:
+
+\begin{definition}{DNA sequence reconstruction problem 2.}
+Given set of reads $\mathcal{F}$ and error rate $\varepsilon$, find
+a sequence $S$ and $\varepsilon$-valid layout which has minimal
+maximum deviation between observed and source distrition of reads.
+\end{definition}
+
+There are still some ambiguities and problems with this formulation.
+One can for example find two solutions which have same maximum deviation
+but differ in one base.
+Also this formulation can be extended to account for contaminated and paired
+reads.
+
+\subsection{Assembly algorithms overview}
+
+Almost all assembly algorithms used in practice are some form of heuristics
+without well defined formulation, proof of correctness, etc.
+There are well defined algorithms, for example algorithm by \cite{Medvedev2009}
+which uses bidirectional flows, but they practical use is very limited (this one
+assumes error-free reads).
+
+The goal of assembly algorithms is to "glue" reads which can be unambiguously glued together.
+They use efficient representation of overlaps between reads and try to resolve
+ambiguous regions using paired end reads and long reads.
+
+The good review of assembly algorithms can be found in \cite{miller2010assembly}.
+They can be divided into two types by representation of overlaps they use.
+The overlap-layout-consensus algorithms use overlap graph, which directly represents
+overlaps between reads. Nowadays this is represented as string graph (TODO cite).
+The other algorithms use deBruijn graphs, which do not work directly with reads, but
+with sequences of $k$-bases ($k$-mers). The nodes in deBruijn graph represent $k$-mers
+and edges represent adjacencies between $k$-mers in reads. 
