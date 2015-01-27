@@ -1,6 +1,37 @@
 \chapter{De Bruijn graphs}
 
+De Bruijn graph (\cite{de1946combinatorial}) is a structure for representing
+overlaps between sequences of symbols.
+
+De Bruijn graph is directed graph. 
+For given $k$, vertices of De Bruijn graph represent sequences of length $k$
+($k$-mers). The edges of De Bruijn graph represent possible overlaps, i. e. 
+if have have an edge $(u, v)$ and vertex $u$ represents $k$-mer $a_1, a_2, \dots, a_k$, then
+vertex $v$ represents $k$-mer $a_2, a_3, \dots, a_k, x$ and $k$-mer in vertex $v$ can
+follow $k$-mer in vertex $u$.
+
 \section{De Bruijn graphs for assembly}
+
+We can use De Bruijn graphs for DNA sequence assembly in a following way
+(\cite{pevzner2001eulerian}):
+The vertices of the graph will be all possible $k$-mers in reads. 
+The edge between $k$-mers $a_1, a_2, \dots, a_k$ and $a_2, \dots, a_k, a_{k+1}$
+will be present if there is a substring $a_1, a_2, \dots, a_{k+1}$ in some read.
+
+We also have to account for reverse complement of DNA. The easiest way to do so
+is to construct $k$-mers not only from reads but also from their reverse complement.
+
+After constructing De Bruijn graph we have several options how to produce the assembly:
+
+We can look for Eulerian path through graph. Even better approach is to look for
+Eulerian superpath -- the path which visits every read, i.e. if some read
+is broken into vertices $v_1, v_2, \dots, v_n$, then the Eulerian superpath
+should contain $v_1, \dots, v_n$ as subpath.
+
+Other assemblers like Velvet (\cite{Velvet}) just join vertices which can be joined
+unambiguosly, i.e. they join vertices $u$, $v$ is there is an edge from $u$ to $v$ and
+it is only edge comming out of $u$ and only edge comming into $v$. After this joining
+each vertex represents one contig of the assembly.
 
 \section{Pair De Bruijn graphs}
 
