@@ -143,5 +143,26 @@ read libraries with various insert sizes and combination of paired libraries and
 One implementation of this approach is SPAdes (\cite{Spades}).
 
 
+\section{Correction of long reads with high number of errors}
 
-\section{Correction long reads with high number of errors}
+The new technology used to sequence DNA is Pacbio which produces
+rather long reads (up to 20000 bases and more) but with many errors
+($15\%$ error rate). There is a need to correct this errors in reasonably
+efficient way.
+
+One way to do so is to correct Pacbio reads using shorter reads with smaller
+error rate. There are approaches which directly map short read on long reads like
+PacbioToCA (\cite{PacbioToCA}). Their downside is that this mapping step
+is computationaly very expensive.
+
+One way to speed up this mapping step is to generate De Bruijn graph from short reads
+and then attempt to map long reads to paths in this graph. This was implemented
+in LoRDEC (\cite{Lordec}).
+
+More specifically, after construction of De Bruijn graph, we remove all vertices
+with very low coverage (only to keep $k$-mers without errors). $k$-mers belonging
+to De Bruijn graph are called solid, others are called weak.
+Then we split each long reads into $k$-mers. Each solid $k$-mer from long read is considered to correct. 
+Our goal now is to correct regions between solid $k$-mers. To do so we are trying
+to find a path through De Bruijn graph which minimizes edit distance between the path
+and the region sequence. 
