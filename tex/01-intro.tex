@@ -157,7 +157,12 @@ ambiguous regions using paired end reads and long reads.
 The good review of assembly algorithms can be found in \cite{miller2010assembly}.
 They can be divided into two types by representation of overlaps they use.
 The overlap-layout-consensus algorithms use overlap graph, which directly represents
-overlaps between reads. Nowadays this is represented as string graph (TODO cite).
-The other algorithms use deBruijn graphs, which do not work directly with reads, but
-with sequences of $k$-bases ($k$-mers). The nodes in deBruijn graph represent $k$-mers
-and edges represent adjacencies between $k$-mers in reads. 
+overlaps between reads. To produce this graph we need to find sufficiently long
+overlaps between all reads. This often leads to algorithms which have quadratic
+complexity to the number of reads (but can be often speeded up by various heuristics).
+
+The other algorithms use De Bruijn graphs, which do not work directly with reads, but
+with sequences of $k$-bases ($k$-mers). The nodes in De Bruijn graph represent $k$-mers
+and edges represent adjacencies between $k$-mers in reads. Note that time
+required to construct this graph is linear in the length of reads, but on the other hand
+we lose some information since we are not working with whole reads.

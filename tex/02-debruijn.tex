@@ -21,6 +21,10 @@ will be present if there is a substring $a_1, a_2, \dots, a_{k+1}$ in some read.
 We also have to account for reverse complement of DNA. The easiest way to do so
 is to construct $k$-mers not only from reads but also from their reverse complement.
 
+We also group together vertices which represent reverse complemented $k$-mers.
+
+TODO obrazok
+
 After constructing De Bruijn graph we have several options how to produce the assembly:
 
 We can look for Eulerian path through graph. Even better approach is to look for
@@ -32,6 +36,19 @@ Other assemblers like Velvet (\cite{Velvet}) just join vertices which can be joi
 unambiguosly, i.e. they join vertices $u$, $v$ is there is an edge from $u$ to $v$ and
 it is only edge comming out of $u$ and only edge comming into $v$. After this joining
 each vertex represents one contig of the assembly.
+
+\subsection{Handling sequencing errors}
+
+Sequencing errors in reads increase complexity of the De Bruijn graph
+(\cite{pevzner2001eulerian}). The common artefacts in graph are tips and bubbles
+(TODO obrazok). Assemblers like Velvet (\cite{Velvet}), Abyss (TODO cite) handle
+errors directly in De Bruijn graph by detecting this artefacts and removing them.
+TODO details.
+
+Other option is to use tools like QUAKE (TODO cite), which try to correct reads
+without assembling them. This tools usualy consider $k$-mers with low abundance
+as errornous and try to correct them using few simple edits in reads.
+
 
 \section{Pair De Bruijn graphs}
 
