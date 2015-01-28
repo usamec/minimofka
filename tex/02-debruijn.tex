@@ -13,15 +13,27 @@ follow $k$-mer in vertex $u$.
 \section{De Bruijn graphs for assembly}
 
 We can use De Bruijn graphs for DNA sequence assembly in a following way
-(\cite{pevzner2001eulerian}):
-The vertices of the graph will be all possible $k$-mers in reads. 
-The edge between $k$-mers $a_1, a_2, \dots, a_k$ and $a_2, \dots, a_k, a_{k+1}$
-will be present if there is a substring $a_1, a_2, \dots, a_{k+1}$ in some read.
+(\cite{pevzner2001eulerian}, \cite{Velvet}):
 
-We also have to account for reverse complement of DNA. The easiest way to do so
-is to construct $k$-mers not only from reads but also from their reverse complement.
+We are given odd number $k$.
+Each vertex represents one $k$-mer. For each vertex $v$ there is a twin vertex $v^{'}$ which
+represents reverse complemented $k$-mer (we need to do this to deal with reads
+coming from reverse complement part of the DNA). Union of $v$ and $v^{'}$ is called a block.
+During manipulation of De Bruijn graph any change applied to node $v$ is also symetrically
+applied to its twin $v^{'}$. To ensure, that some $k$-mer is to same as its reverse complement,
+$k$ must be an odd number.
 
-We also group together vertices which represent reverse complemented $k$-mers.
+Vertices $u$, $v$ in De Bruijn graph can be connected by directed arcs if the last
+$k-1$ bases of $u$ are same as the first $k-1$ bases in $v$. Also note that
+if there is an edge between vertices $u$, $v$ there is an inverted edge between their twins,
+i.e. there is an edge from $v^{'}$ to $u^{'}$.
+
+We construct De Bruijn graph from reads in straighforward way.
+We extract every $k$-mer from each reads and its reverse complement.
+That we joined by edge each pair of $k$-mer which are overlapped in some read.
+Some assemblers also record some simple statistics like multiplicity of each vertex or edge. 
+This construction can be done in efficient way by using hash tables, like in Velvet (\cite{Veltet}).
+There are also space-efficient representations of De Bruijn graphs based on Bloom filters (\cite{minia}).
 
 TODO obrazok
 
@@ -32,6 +44,14 @@ Eulerian superpath -- the path which visits every read, i.e. if some read
 is broken into vertices $v_1, v_2, \dots, v_n$, then the Eulerian superpath
 should contain $v_1, \dots, v_n$ as subpath.
 
+\begin{definition}{Eulerian superpath problem.}
+Given graph $G$ and set of paths $\mathbb{P}$ find path $P$, which contains
+every path from $\mathbb{P}$ as subpath.
+\end{definition}
+
+Euler assembler (\cite{pevzner2001eulerian}) solves some instances of Eulerian superpath problem
+using simple transformations which transform Eulerian superpath instance to equivalend Eulerian path instance.
+
 Other assemblers like Velvet (\cite{Velvet}) just join vertices which can be joined
 unambiguosly, i.e. they join vertices $u$, $v$ is there is an edge from $u$ to $v$ and
 it is only edge comming out of $u$ and only edge comming into $v$. After this joining
@@ -41,14 +61,54 @@ each vertex represents one contig of the assembly.
 
 Sequencing errors in reads increase complexity of the De Bruijn graph
 (\cite{pevzner2001eulerian}). The common artefacts in graph are tips and bubbles
-(TODO obrazok). Assemblers like Velvet (\cite{Velvet}), Abyss (TODO cite) handle
+(TODO obrazok). Assemblers like Velvet (\cite{Velvet}), ABySS (\cite{Abyss}) handle
 errors directly in De Bruijn graph by detecting this artefacts and removing them.
-TODO details.
 
-Other option is to use tools like QUAKE (TODO cite), which try to correct reads
+The naive approch to fix errors in graph can be to remove all $k$-mers with low coverage.
+This can be problematic since some sequencing technologies do not produce reads with uniform coverage
+and we will remove good low coverage regions and we can cause the graph to be disconnected.
+
+\paragraph{Removing tips.} A tip is chain of vertices disconnected at one end. 
+Tips usually represent some local errors in the reads. Their removal is pretty straighforward
+and removing them does not destroy connectivity in the graph. But sometimes the tips
+might represent correct sequence which is interupted by gap in the coverage.
+Velvet (\cite{Velvet}) removes tips, which are at most $2k$ bases long and the edge starting
+the tip has lower multiplicity that some other edge in the branching vertex.
+
+\paragraph{Removing bubbles.} Two paths which start and end at the same nodes (form a bubble)
+and contain similar sequences might be considered redundant.
+For example these bubbles might be caused by small error in the middle of the read.
+Velvet find similar path using following algorithm:
+It starts breath first search like algorithm from arbitrary vertex, but considers higher converage
+arcs as shorter. Whenever it encounters previous visited vertex $v$ it tries to find closest common ancestor
+of current path and shortest path $v$. Then it extract seqeunce belonging to two paths and if this two
+paths is judged as similar enough the longer path is merged into shorter one. 
+ 
+\bigskip
+
+Other option is to use tools like QUAKE (\cite{Quake}), which try to correct reads
 without assembling them. This tools usualy consider $k$-mers with low abundance
 as errornous and try to correct them using few simple edits in reads.
 
+
+\subsection{Achieving longer contigs}
+
+When using De Bruijn graphs we discarded a lot of continuity information from reads.
+For example if we have reads of length $100$ bases, we can resolve assembly around repeats
+of length up $100$ bases. But after we construct De Bruijn graph with $k = 33$ we are only
+able to resolve assembly around repeats of length up to $33$ bases. Also De Bruijn graphs
+do not directly support handling paired reads.
+
+For example ABySS (\cite{Abyss}) uses paired reads in following way:
+After initial error correction in De Bruijn graph in align paired reads
+to reasonably long vertices in De Bruijn graph. Two vertices are considered linked
+if there at least $p$ read pairs (usually $p=5$) which join the vertices.
+We denote $P_i$ the set of vertices which are linked to vertex $v_i$.
+Then we perform search for single unique path from $v_i$ through De Bruijn graph which visits
+each vertex from $P_i$. We usualy limit this search by estimated distance from $v_i$ to each element
+from $P_i$. This process is performed for each vertex and final consistent paths are stitched to final assembly.
+
+TODO maybe heuristiky z Velvetu
 
 \section{Pair De Bruijn graphs}
 

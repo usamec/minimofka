@@ -11,7 +11,7 @@ In most cases locations of substrings are sampled using uniform distribution.
 The goal of sequence assembly is to reconstruct original string.
 
 One might thought that shortest common superstring (\cite{maier1977note}) 
-is a good formalization of the problem above. But consider following DNA sequence:
+is a good formalization of~the~problem above. But consider following DNA sequence:
 
 $$AA\textcolor{red}{CGTA}\textcolor{green}{CGTA}\textcolor{blue}{CGTA}GG$$
 
@@ -23,18 +23,18 @@ In this case we lost one repetitions of repeated sequence. If we assume uniform
 sampling from original sequence we might estimate the number of repeated substring
 by using coverage information (how many reads cover one position).
 
-But there are also sequences for which we cannot reconstruct the order of elements in
-original sequence, consider the following:
+But there are also sequences for which we cannot reconstruct the order of elements
+in~original sequence, consider the following:
 
 $$AA\textcolor{red}{CTCT}\textcolor{green}{GG}\textcolor{red}{CTCT}\textcolor{blue}{CC}\textcolor{red}{CTCT}TT$$
 
-In this case if have reads of length 4 we cannot distinguish between sequence above and
+In this case if we have reads of length 4 we cannot distinguish between sequence above and
 sequence:
 
 $$AA\textcolor{red}{CTCT}\textcolor{blue}{CC}\textcolor{red}{CTCT}\textcolor{green}{GG}\textcolor{red}{CTCT}TT$$
 
 Due to this, the goal of the sequence assembly is to reconstruct as long as possible
-unambigous parts of the DNA sequence (called contigs).
+unambiguous parts of the DNA sequence (called contigs).
 
 \section{Real-life complications}
 
@@ -67,7 +67,7 @@ reading few hundred bases. To capture information which contains longer part of 
 sequence some technologies produce longer fragments from which they readtens to hundreds
 of bases from both sides and do not read bases from middle (since there will be
 too many errors). The result of this process is a pair of reads for which we know approximate
-distance in the DNA sequence.
+distance in the DNA sequence. This distance is often called insert size.
 
 \subsection{Sequencing technologies}
 
@@ -88,6 +88,10 @@ PacBio & 2000 - 20000 & $14\%$ & No \\\hline
 \caption{Overview of current sequencing technologies}
 \label{tab:techs}
 \end{table}
+
+Also note that it is much cheaper to produce paired reads with lower insert sizes,
+so it is common to combine multiple libraries such as high coverage reads with low insert size
+(e.g. 200 bases), and lower coverage reads with high insert size (e.g. 3000 bases).
 
 \section{Overview of known solutions}
 
@@ -156,10 +160,23 @@ ambiguous regions using paired end reads and long reads.
 
 The good review of assembly algorithms can be found in \cite{miller2010assembly}.
 They can be divided into two types by representation of overlaps they use.
+
 The overlap-layout-consensus algorithms use overlap graph, which directly represents
-overlaps between reads. To produce this graph we need to find sufficiently long
-overlaps between all reads. This often leads to algorithms which have quadratic
+overlaps between reads (two reads are connected by edge, if there is a sufficiently long overlap between them).
+To produce this graph we need to find sufficiently long
+overlaps between all reads (and this overlap not need to be exact, we usually allow small edit distance between overlapping parts).
+This often leads to algorithms which have quadratic
 complexity to the number of reads (but can be often speeded up by various heuristics).
+After finding overlaps we usually perform removing of transitive edges (we remove edge
+from $u$ to $w$ if there is an vertex $v$ and edges from $u$ to $v$ and from $v$ to $w$).
+
+In the layout step we try to find reasonable layout of reads in the assembly.
+Finally, in consensus step we perform base calling, e. g. if 10 reads overlaps in
+one possitions and 9 of them says the base should be $A$ and one says $G$ we decide the base to
+be $A$.
+
+
+\medskip
 
 The other algorithms use De Bruijn graphs, which do not work directly with reads, but
 with sequences of $k$-bases ($k$-mers). The nodes in De Bruijn graph represent $k$-mers
