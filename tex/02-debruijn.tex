@@ -108,8 +108,40 @@ Then we perform search for single unique path from $v_i$ through De Bruijn graph
 each vertex from $P_i$. We usualy limit this search by estimated distance from $v_i$ to each element
 from $P_i$. This process is performed for each vertex and final consistent paths are stitched to final assembly.
 
-TODO maybe heuristiky z Velvetu
-
 \section{Pair De Bruijn graphs}
 
+De Bruijn graphs do not incorporate any information from paired reads.
+Assemblers mentioned above usually use information from paired reads only in heuristics postprocessing.
+These heuristics usually work well is simple cases, but fail when assembly contains several repeated regions after each other.
 
+Interesting concept are paired De Bruijn graphs (\cite{Paired}) which try to incorporate paired read
+information directly info De Bruijn graph. In the following we will present construction of 
+paired De Bruijn graph. For simplicity we will ignore reverse complements a problems associated with it.
+
+\paragraph{Paired De Bruijn graphs with exact insert sizes.}
+Let $k$-bimer be pair of two $k$-mer $(a, b)$. Each vertex represents one $k$-bimer and edges represent
+consecutive $k$-bimers similarly as in ordinary De Bruijn graph. 
+From each pair of reads we will produce $k$-bimers in straighforward way:
+$i$-th $k$-bimer will be created using $i$-th $k$-mer from the first read and $i$-th $k$-mer from the second read.
+Edges in graph are given by consecutive pairs of $k$-mers from reads.
+
+The assembly is then created by walking some path through graph where we read one part of $k$-bimers.
+
+\paragraph{Paired De Bruijn graphs with approximate insert sizes.}
+Lets assume that insert sizes are from the interval $d \pm \Delta$.
+We start by constructing paired De Bruijn graph described in previous paragraph.
+The key insight is that if two $k$-bimers $(a, b)$ and $(a, b^{'})$ come from
+same location of $a$ then the distance of $b$ and $b^{'}$ in ordinary De Bruijn graph is at most $2\Delta$.
+
+In the next step we will merge all vertices $(a, b)$, $(a, b^{'})$ if there is a path
+between $b$ and $b^{'}$ in ordinary De Bruijn graph with length at most $2\Delta$.
+
+\bigskip
+Like in the case of ordinary De Bruijn graph we need to deal with errors in reads
+and also with insert size outliers. This approach still cannot handle multiple
+read libraries with various insert sizes and combination of paired libraries and long reads.
+One implementation of this approach is SPAdes (\cite{Spades}).
+
+
+
+\section{Correction long reads with high number of errors}
