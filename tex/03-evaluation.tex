@@ -1,6 +1,48 @@
 \chapter{Evaluating quality of assemblies}
 
+After performing an assembly we can count several
+interesting statistics, which can tell us how good the assembly is.
+
 \section{Basic statistics}
+
+\subsection{Statistics based only on assembly}
+
+This statistics summarize the distribution of lengths of contigs.
+We give a brief overview of metrics used in QUAST (\cite{Quast}), which
+is standard tool for evaluation assemblies.
+
+\begin{itemize}
+\item Number of contigs (or number of contigs longer than $x$ -- where usually $x = 1000$).
+\item Length of the largest contig.
+\item Total length of contigs.
+\item $Nx$ (where $0 < x \leq 100$) -- the largest contig length $L$, such that using contigs
+of length $\geq L$ accounts for at least $x \%$ of the bases of the assembly.
+\end{itemize}
+
+Note that each of this statistics can be "gambled" so comparing assemblies based
+on this statistics can be only done when we assume, that assembly software does only
+reasonable operations.
+
+\subsection{Statistics based on assembly and reference sequence}
+
+Sometimes (especially during evalution as assembly algorithms) we have access to true sequence
+and we can compute various statistics which tell us how many errors are in our assembly.
+Calculating these statistics usually starts with aligning assembly and reference genome, which
+gives us information in the form:
+"Substring of assembly starting at position $a$, ending at position $b$ can be mapped
+to the substring of reference genomes starting at $c$, ending at $d$ with $e$ edits."
+We called aligned substrings blocks. 
+
+\begin{itemize}
+\item No. of missasemblies -- missassembly is usually defined as a positions where
+positions of block aligned on the left and block aligned on the right differ in reference
+by more that $1000$ bases or this block are on opposite strands of in different chromosomes.
+\item No. of missassembled contigs -- nubmer of contigs which contain missassembly.
+\item No. of mismatches and indels -- these statistics are interesting in one base differences,
+either substitutions or insertions and deletions.
+\item $NAx$ -- similar to $Nx$, but before computing this statistic we break
+contigs at missassemblies.
+\end{itemize}
 
 \section{REAPR}
 
