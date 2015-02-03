@@ -73,3 +73,105 @@ REAPR uses this metrics to calculate score at each base and then breaks assembly
 
 \section{Probability models}
 
+In some cases we have to compare multiple assemblies and decide which one is
+the best. This can be done using various criteria, but \cite{Ghodsi2013} shows
+that very simple and theoretically sound probalistic model can do the job.
+
+In general, the probabilistic model defines the probability $\Pr(R|A)$ that a set of
+sequencing reads $R$ is observed assuming that assembly $A$ is the
+correct assembly of the genome. Since the sequencing itself is a
+stochastic process, it is very natural to characterize concordance of
+reads and an assembly by giving a probability of observing a particular
+read.
+
+\def\LAP{\mathrm{LAP}}
+
+\paragraph{Basics of the likelihood model.}
+The model assumes
+that individual reads are independently sampled, and thus the overall
+likelihood is the product of likelihoods of the reads:
+$\Pr(R|A) = \prod_{r\in R} \Pr(r|A).$
+To make
+the resulting value independent of the number of reads in set 
+$R$, we use as the main
+assembly score the log average probability of a read computed as
+follows: $\LAP(A|R) = (1/|R|)\sum_{r\in R} \log \Pr(r|A).$ Note that
+maximizing $\Pr(R|A)$ is equivalent to maximizing $\LAP(A|R)$.
+
+If the reads were error-free and each position in the genome was
+sequenced equally likely, the probability of observing read $r$
+would simply be $\Pr(r|A)=n_r/(2L)$, where $n_r$ is the number of 
+occurrences of the read as a substring of the assembly $A$,
+$L$ is the length of $A$, and thus $2L$ is the length of the two
+strands combined.
+
+Other way of looking at the error free model is to say that probability
+of generating read from position $j$ is one if read exactly matches 
+assembly at given position and zero otherwise. This can be extended
+to account for sequencing errors. The probability of generating read
+from position $j$ is a real number which represent likelihood of generating
+that read from given position. This value mainly depends on the number
+of differences between read and assembly at the specific position.
+
+Formally we define $p_{r, j}$ as probability of generating read $r$ from a sequence
+that ends at position $j$. Then the probability of generating read $r$ can be computed as:
+
+$$\Pr(r|A) = \frac{\sum_j p_{r,j}^{forward} + \sum_j p_{r,j}^{reverse}}{2L}$$ 
+
+The individual probabilities $p_{r,j}$ can be computed via dynamic programing, where
+we define $T[x,y]$ as a probability of generating prefix of read of length $y$ from sequence
+which ends at position $x$. Clearly $p_{r,j} = T[j, \ell]$, where $\ell$ is the length
+of the read. Also $T[x,0] = 1$ for all $x$ and $T[0,y]= 0$ for all $y > 0$.
+The other probabilities can be computed using following formula:
+$$T[x,y] = T[x-1,y-1]\Pr(Subs(A[x], r[y])) + T[x,y-1]\Pr(Ins(r[y])) +
+T[x-1,y]\Pr(Del(A[x]))$$
+
+Where $A[x], r[y]$ represents bases at the assembly at position $x$ and in read at
+position $y$ respectively and $Subs, Ins, Del$ represents events of substition, insertion
+and deletion.
+
+However this dynamic programming is too time consuming. 
+In practice it is good enough to align reads to the assembly and to compute
+likelihood from the alignments.
+Given read $r$ and 
+a set $S_r$ of a few best alignments of $r$ to
+genome~$A$, as obtained by one of standard fast read alignment tools, the
+probability of generating read $r$ can be estimated as:
+\begin{equation}
+\Pr(r|A)\approx \frac{\sum_{j\in S_r} R(s_j, m_j)}{2L},
+\end{equation}
+where $m_j$ is the number of matches in the $j$-th alignment, and
+$s_j$ is the number of mismatches and indels implied by this alignment.
+
+\paragraph{Paired reads.}
+Likelihood model can accomodate also paired reads.
+We assume that the insert size distribution in a set of reads $R$ 
+can be modeled by the normal
+distribution with known mean $\mu$ and standard deviation $\sigma$.
+The probability of observing paired reads $r_1$ and $r_2$ 
+can be estimated from the sets of alignments $S_{r_1}$ and $S_{r_2}$ as follows:
+
+\begin{equation}
+\Pr(r_1, r_2|A) \approx 
+\frac{1}{2L}
+\displaystyle\sum_{j_1 \in S_{r_1}} 
+\displaystyle\sum_{j_2 \in S_{r_2}} 
+R(s_{j_1}, m_{j_1}) R(s_{j_2}, m_{j_2})
+\Pr(d(j_1, j_2)|\mu, \sigma)
+\end{equation}
+As before, $m_{j_i}$ and $s_{j_i}$ are the numbers of matches and
+sequencing errors in alignment $j_i$ respectively, 
+and $d(j_1,j_2)$ is the distance between the two alignments
+as observed in the assembly. 
+If alignments $j_1$ and $j_2$ are in two different contigs,
+or on inconsistent strands, $\Pr(d(j_1, j_2)|\mu, \sigma)$ is zero.
+
+\paragraph{Reads that have no good alignment to $A$.}
+Some reads or read pairs do not align well to $A$, and as a result, their
+probability $\Pr(r|A)$ is very low; our approximation by a set of
+high-scoring alignments can even yield zero probability if set $S_r$
+is empty.  Such extremely low probabilities then dominate the log
+likelihood score.  \cite{Ghodsi2013} propose a method that assigns
+such a read a score approximating the situation when the read would be
+added as a new contig to the assembly. In practice this usually
+means having lower bound on the probability of generating a read.
