@@ -46,5 +46,30 @@ contigs at missassemblies.
 
 \section{REAPR}
 
+If we have access to original reads and the assembly we can find locations
+of this reads in the assembly and then compute several statistics which
+can point out to suspicious regions in the assembly.
+
+There are several tools which do this, one of them is REAPR (\cite{Reapr}) which we describe
+in more detail below:
+
+REAPR is designed for working with paired reads, so in the following we will assume that
+we have one library of paired reads. REAPR starts by mapping reads to the assembly, i.e. for each read we know locations it the assembly
+and the edit distance for this mapping.
+
+After mapping step we can calculate following metrics for each base in the assembly:
+\begin{itemize}
+\item Read coverage -- how many mapping of reads overlap current position. Low coverage usually indicates assembly error.
+\item Type of read coverage -- we can calculate read coverage for specific conditions such as: reads without pairs, reads with pair with wrong orientation,
+coverage for reads which map with or without reverse complementing.
+\item Read clipping -- sometimes read can be mapped to assembly but a few bases at the end of the reads do not match. We can reads mapped this way as soft-clipped.
+At each base we count the number of soft-clipped reads which mapping starts or end at this base. A high read clipping count can be sign of insertion of deletion
+in the assembly.
+\item Paired coverage -- same as read coverage but we treat properly paired reads as a one long read when calculating coverage.
+\item FCD error -- TODO
+\end{itemize}
+
+REAPR uses this metrics to calculate score at each base and then breaks assembly at places with low score.
+
 \section{Probability models}
 

@@ -19,7 +19,7 @@ If our reads have length 4 and come from all possible positions the shortest
 common superstring would be:
 $$AA\textcolor{red}{CGTA}\textcolor{green}{CGTA}GG$$
 
-In this case we lost one repetitions of repeated sequence. If we assume uniform
+In this case we lost one repetition of repeated sequence. If we assume uniform
 sampling from original sequence we might estimate the number of repeated substring
 by using coverage information (how many reads cover one position).
 
@@ -183,7 +183,6 @@ In the layout step we try to find reasonable layout of reads in the assembly.
 Finally, in consensus step we perform base calling, e. g. if 10 reads overlaps in
 one possitions and 9 of them says the base should be $A$ and one says $G$ we decide the base to
 be $A$.
-
 
 \medskip
 
