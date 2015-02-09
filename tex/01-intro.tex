@@ -1,76 +1,111 @@
 \chapter{Introduction}
 
-\section{Problem of sequence assembly}
+TODO celkovy uvod
 
-DNA sequence of an organism is a string over the four letter alphabet A, C, G, T
-(with usual length between millions to billions characters).
-Current technologies cannot read the whole sequence at once but produce many
-substrings of sequence called fragments or reads (whose positions usually overlaps).
-In most cases locations of substrings are sampled using uniform distribution.
+\section{Problem of the Sequence Assembly}
 
+For the purpose of this work we can view DNA sequence as a string over the
+four letter alphabet A, C, G, T. The usual length of these strings
+is between millions and billions of characters.
+Current technologies cannot read the whole sequence at once, instead they produce many
+overlapping substrings of sequence called reads.
+In most cases locations of these substrings are sampled uniformly.
 The goal of sequence assembly is to reconstruct original string.
 
-One might thought that shortest common superstring (\cite{maier1977note}) 
-is a good formalization of~the~problem above. But consider following DNA sequence:
+Perhaps the oldest formulation of this task as a computer science
+problem is the shortest common supersting problem:
+
+\begin{definition}{Shortest common supersting.}
+Given set of strings $\mathcal{P} = \{S_1, S_2, \dots, S_k\}$, the shortest
+common superstring is a shortest string $S$, that contains every string
+from $\mathcal{P}$ as a substring.
+\end{definition}
+
+But unfortunately, finding shortest common superstring if NP-hard (\cite{SCShard}).
+There is a known $2.5$-approximation algorithm (\cite{SCSapx}).
+The most common greedy heuristic for this problem is:
+\begin{verbatim}
+Where there is more than one string:
+  Merge two strings with largest overlap
+\end{verbatim}
+
+The approximation factor for this heuristic is not known. There are inputs
+which produce string which are two times longer than optimal
+and it is conjectured that this bound is tight.
+
+
+Over the years, it has been shown
+that this formuation does not represent the underlying problem very well.
+On one hand, the problem is difficult to solve computationally, and the
+approximation algorithms do not yield very practical results.
+On the other hand, this formulation does not consider some specifics of the underlying data.
+For example consider following DNA sequence:
 
 $$AA\textcolor{red}{CGTA}\textcolor{green}{CGTA}\textcolor{blue}{CGTA}GG$$
 
-If our reads have length 4 and come from all possible positions the shortest
+If we have reads of length four that come from all possible positions, the shortest
 common superstring would be:
+
 $$AA\textcolor{red}{CGTA}\textcolor{green}{CGTA}GG$$
 
-In this case we lost one repetition of repeated sequence. If we assume uniform
-sampling from original sequence we might estimate the number of repeated substring
-by using coverage information (how many reads cover one position).
+We have lost one repetition of repeated sequence. Such repeated sequences are
+very common in real DNA sequences (see \cite{DNARep}).
 
-But there are also sequences for which we cannot reconstruct the order of elements
-in~original sequence, consider the following:
+%If we assume uniform
+%sampling from original sequence we might estimate the number of repeated substring
+%by using coverage information (how many reads cover one position).
+
+But there are also sequences for which it is impossible to even 
+reconstruct the order of elements
+in the original sequence. For example in the sequence:
 
 $$AA\textcolor{red}{CTCT}\textcolor{green}{GG}\textcolor{red}{CTCT}\textcolor{blue}{CC}\textcolor{red}{CTCT}TT$$
 
-In this case if we have reads of length 4 we cannot distinguish between sequence above and
-sequence:
+With reads of length four, we cannot distinguish between this original sequence and
+the sequence:
 
 $$AA\textcolor{red}{CTCT}\textcolor{blue}{CC}\textcolor{red}{CTCT}\textcolor{green}{GG}\textcolor{red}{CTCT}TT$$
 
 Due to this, the goal of the sequence assembly is to reconstruct as long as possible
 unambiguous parts of the DNA sequence (called contigs).
+TODO rozpisat
 
-\section{Real-life complications}
+%\section{Real-life complications}
 
-In practice there are several complications which make sequence assembly even harder.
-In following text we mention the major ones.
+In practice, there are several complications which make the sequence assembly even harder.
+In the following text we mention the major ones.
 
-\subsection{Reverse complement}
+\paragraph{Reverse complement.} 
+The DNA comes in two strands, which are reverse complementes to each other.
 
-Each letter (base) from DNA alphabet has the complementary base. This can
-be viewed as homomorphism $h(\cdot)$, where: $h(A) = T, h(C) = G, h(G) = C, h(T) = A$.
-The real DNA is composed from two strings: $S$ and $h(S^R)$ -- the reverse complement.
-During sequencing process the bases can come from both sides of the DNA and
-we do not have information about the side.
+\begin{definition}{Reverse complement}
+For given DNA sequence $s$ its reverse complement is defined as
+$RC(s) = h(s^R)$, where $h(\cdot)$ is a homomorphism where $h(A) = T, h(C) = G,
+h(G) = C, h(T) = A$. 
+\end{definition}
 
-\subsection{Diploid genomes}
+During sequencing we sequence both strands of the DNA and we do not have
+any information about read orientation (which strand the read comes from).
 
-Lots of organisms have multiple sets of chromosomes (e.g. humans have one set
-inherited from mother and other set inherited from father, so each chromosome
-is present in two copies). This copies of chromosomes are almost identical but
+\paragraph{Diploid genomes.}
+Many organisms have multiple sets of chromosomes. For example humans have one set
+inherited from the mother and other set inherited from the father, so each chromosome
+is present in two copies. This two copies of each chromosome are almost identical but
 contain some differences (sometimes only changes in one base, but sometimes also
 bigger variations). This poses additional chanllenge since we are trying to recostruct
 multiple similar sequences.
+TODO ako caste zmeny
 
-\subsection{Errors in reads}
-
+\paragraph{Errors in reads.}
 In practice the chemical process of sequencing DNA also produces errors.
-Sometimes there are small errors in reads -- i.e. substitutions, insertions
-and deletions. The amount of these errors depends on specific sequencing technology
-(also some technologies have higher amount of substitutions while other
-have high amount of insertions).
+Sometimes there are small errors in reads, i.e. substitutions, insertions
+and deletions. The amount of these errors depend on specific sequencing technology.
+For example some technologies have higher amount of substitutions while others
+have high amount of insertions. 
+There are also reads which do not belong to the sequenced genome, but are result
+of a contamination.
 
-There are also reads which do not belong to sequenced genome, but are result
-of some contamination.
-
-\subsection{Paired-end reads}
-
+\paragraph{Paired-end reads}
 Some technologies start reading fragments from one end and lose accuracy after
 reading few hundred bases. To capture information which contains longer part of the
 sequence some technologies produce longer fragments from which they readtens to hundreds
