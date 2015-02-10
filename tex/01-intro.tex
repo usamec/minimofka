@@ -1,6 +1,18 @@
 \chapter{Introduction}
 
-TODO celkovy uvod
+Knowledge of DNA sequences has become indispensable for basic biological research
+and in numerous applied fields like diagnostics, forensic biology, etc.
+It is also important for understanding cancer, fighting antibiotic resistant bacteria, etc.
+With decreasing cost of DNA sequencing we are able to sequence more organisms
+but also we have to handle much bigger amounts of data. 
+
+Unfortunately we are still not able to read whole DNA sequence at one, we can only
+read it in small pieces and then rely on computational methods of sequence assembly
+to produce whole DNA sequence.
+
+In this work, we describe theoretical background of sequence assembly,
+current algorithms and heuristics used in practice and also related 
+problems of evaluating quality of sequence assembly.
 
 \section{Problem of the Sequence Assembly}
 
@@ -25,7 +37,7 @@ But unfortunately, finding shortest common superstring if NP-hard (\cite{SCShard
 There is a known $2.5$-approximation algorithm (\cite{SCSapx}).
 The most common greedy heuristic for this problem is:
 \begin{verbatim}
-Where there is more than one string:
+When there is more than one string:
   Merge two strings with largest overlap
 \end{verbatim}
 
@@ -33,6 +45,7 @@ The approximation factor for this heuristic is not known. There are inputs
 which produce string which are two times longer than optimal
 and it is conjectured that this bound is tight.
 
+\medskip
 
 Over the years, it has been shown
 that this formuation does not represent the underlying problem very well.
@@ -106,36 +119,37 @@ There are also reads which do not belong to the sequenced genome, but are result
 of a contamination.
 
 \paragraph{Paired-end reads}
-Some technologies start reading fragments from one end and lose accuracy after
-reading few hundred bases. To capture information which contains longer part of the
-sequence some technologies produce longer fragments from which they readtens to hundreds
-of bases from both sides and do not read bases from middle (since there will be
-too many errors). The result of this process is a pair of reads for which we know approximate
-distance in the DNA sequence. This distance is often called insert size.
+Some technologies produces reads in pairs for which we know appoximate distance
+in the genome. The total length of reads plus approximate distance between reads
+is called insert size.
 
-\subsection{Sequencing technologies}
+\section{Sequencing technologies}
 
-We summarize currently used sequencing technologies in \ref{tab:techs}.
-This presents additional chalenge for assembling algorithms since they
-cannot be tailored only for one technology, but should work with combination
-of data from many technologies.
+There are several sequecing technologies currently available. They vary
+in many properties like cost, read length, accuracy, etc.
+We summarize currently used sequencing technologies in \ref{tab:techs},
+based on data from \cite{seq1}, \cite{seq2}.
 
 \begin{table}[h]
 \centering
-\begin{tabular}{|c|c|c|c|}
+\begin{tabular}{|c|c|c|c|c|c|c|}
 \hline
-Technology & Read length & Error rate & Paired end reads \\\hline
-Illumina & 50 - 300 & 2\% & Yes\\\hline
-454 & 700 & $0.1\%$ & Yes \\\hline
-PacBio & 2000 - 20000 & $14\%$ & No \\\hline
+\multirow{2}{*}{Technology} & Read   & Error & Paired end & Cost per      & Reads   & Time \\
+                            & length & rate  & reads      & million bases & per run & per run \\\hline
+Illumina & 50 - 300 & 2\% & Yes & $\$0.05 - \$0.15$ & up to 3 billion & few days\\\hline
+454 & 700 & $0.1\%$ & Yes & $\$10$ & 1 million & one day\\\hline
+PacBio & 20000 & $14\%$ & No & $\$0.13 - \$0.60$ & 50000 & few hours\\\hline
 \end{tabular}
 \caption{Overview of current sequencing technologies}
 \label{tab:techs}
 \end{table}
 
-Also note that it is much cheaper to produce paired reads with lower insert sizes,
-so it is common to combine multiple libraries such as high coverage reads with low insert size
-(e.g. 200 bases), and lower coverage reads with high insert size (e.g. 3000 bases).
+Wide variety of technologies present additional challenge to assembly software.
+They have to handle multiple combinations of reads libraries from possibly
+different technologies (like Illumina + PacBio,
+or multiple libraries of Illumina reads with different insert sizes).
+We will discuss this topic further in section about assembly algorithms. 
+
 
 \section{Overview of known solutions}
 
