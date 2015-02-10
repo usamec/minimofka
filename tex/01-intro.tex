@@ -79,11 +79,21 @@ the sequence:
 
 $$AA\textcolor{red}{CTCT}\textcolor{blue}{CC}\textcolor{red}{CTCT}\textcolor{green}{GG}\textcolor{red}{CTCT}TT$$
 
-Due to this, the goal of the sequence assembly is to reconstruct as long as possible
-unambiguous parts of the DNA sequence (called contigs).
-TODO rozpisat
+Due to these problems it is obvious that finding shortest common supersting
+is not a good formulation for sequence assembly. 
+In practice our goals are usually more humble and we are satisfied with reconstructing
+umambigous parts of the DNA sequence. Assembly tool
+usually produce substrings from the original sequence called contigs.
+Sometimes they are also able to detect approximate distance between contigs
+(but cannot infer DNA sequence between them), so they join
+contigs into scaffolds. Scaffold is a sequence of contigs with known
+approximate distance between them. 
+This unknown areas are ofter represented as a strings of several $N$-s.
 
-%\section{Real-life complications}
+We will discuss several attempts of theoretical assembly formulation in
+next sections but first we look into more complications of sequence assembly.
+
+\subsection{Real-life complications}
 
 In practice, there are several complications which make the sequence assembly even harder.
 In the following text we mention the major ones.
@@ -123,12 +133,13 @@ Some technologies produces reads in pairs for which we know appoximate distance
 in the genome. The total length of reads plus approximate distance between reads
 is called insert size.
 
-\section{Sequencing technologies}
+\subsection{Sequencing technologies}
 
 There are several sequecing technologies currently available. They vary
 in many properties like cost, read length, accuracy, etc.
 We summarize currently used sequencing technologies in \ref{tab:techs},
 based on data from \cite{seq1}, \cite{seq2}.
+We also added statistics of old Sanger sequencing for comparison.
 
 \begin{table}[h]
 \centering
@@ -136,8 +147,9 @@ based on data from \cite{seq1}, \cite{seq2}.
 \hline
 \multirow{2}{*}{Technology} & Read   & Error & Paired end & Cost per      & Reads   & Time \\
                             & length & rate  & reads      & million bases & per run & per run \\\hline
-Illumina & 50 - 300 & 2\% & Yes & $\$0.05 - \$0.15$ & up to 3 billion & few days\\\hline
+Sanger & 900 & $0.1\%$ & Yes & $\$2400$ & N/A & few hours\\\hline
 454 & 700 & $0.1\%$ & Yes & $\$10$ & 1 million & one day\\\hline
+Illumina & 50 - 300 & 2\% & Yes & $\$0.05 - \$0.15$ & up to 3 billion & few days\\\hline
 PacBio & 20000 & $14\%$ & No & $\$0.13 - \$0.60$ & 50000 & few hours\\\hline
 \end{tabular}
 \caption{Overview of current sequencing technologies}
@@ -150,18 +162,32 @@ different technologies (like Illumina + PacBio,
 or multiple libraries of Illumina reads with different insert sizes).
 We will discuss this topic further in section about assembly algorithms. 
 
+\section{Overview of current solutions}
 
-\section{Overview of known solutions}
+We will now discuss several better attempts at theoretical
+formulation of sequence assembly and then we will describe currently
+used assembly algorithms.
 
-\subsection{Assembly problem formalization}
+\subsection{Formalization of the assembly problem}
 
-There are several formulations of the genome assembly problem, but
-most of them are not user in practice.
+To sum up previous sections, we are trying to reconstruct DNA seqence from reads,
+which:
+\begin{itemize}
+\itemsep-0.2pt
+\item Are much smaller than original sequence.
+\item Have unknown orientation.
+\item Contain errors.
+\item Some of them are not from the original sequence.
+\item Might be paired. 
+\end{itemize}
 
-First of them is a variation of shortest common superstring problem, where we
-almost account for the possibility of sequencing errors \cite{kececioglu1995combinatorial}. 
+\bigskip
 
-\begin{definition}{DNA sequence reconstruction problem 1.}
+To account for the possibility of sequencing errors, 
+Kececioglu et al. \cite{kececioglu1995combinatorial}
+proposed a variant of shortest common supersting problem. 
+
+\begin{definition}{Shortest common superstring with errors.}
 Given set of reads $\mathcal{F}$ and error rate $\varepsilon$, find
 a shortest sequence $S$ such that for every $A \in \mathcal{F}$ there is a substring
 $B$ of $S$ such that:
@@ -169,16 +195,24 @@ $$min(d(A,B), d(\bar{A}, B)) \leq \varepsilon |A|$$
 \end{definition}
 
 This formulation can be also extended to account for contaminated reads and paired reads.
-As mentioned above this formulation is problematic since it compresses repeated regions
-in the genome.
+While accounting for sequencing errors, this formulation is still problematic
+since it compresses repeated regions in the genome.
+Not surprisingly, this problem is NP-hard (\cite{kececioglu1991exact}).
 
-A better formulation is given by \cite{myers1995toward}. It also considers
-coverage of output sequence by substring and wants it to be as uniform as possible.
+\bigskip
 
-We consider our reconstructed string $S$ and the layout consisting of
-$F$ pairs of integers $(s_i, e_i)$, which indicates starting and ending positions
+One way of estimating the number of repeats regions is to observe
+that if we collapse some repeated regions there we will see far
+more reads coming from collapsed regions that from others. 
+
+This is used in formulation given by \cite{myers1995toward}. It considers
+coverage of the output sequence by reads and wants it to be as uniform as possible.
+
+We consider our reconstructed string $S$ and the positions of reads (layout)
+consisting of $F$ pairs of integers $(s_i, e_i)$,
+\ which indicates starting and ending positions
 of reads in the reconstructed sequence. The layout is $\varepsilon$-valid
-if for each read $A$ the edit distance between $S[s_i:e_i]$ and the read
+if for each read $A$, the edit distance between $S[s_i:e_i]$ and the read
 is at most $\varepsilon |A|$.
 
 We will now formalize the notion of uniform coverage. Lets consider a observed
@@ -192,51 +226,84 @@ $$\delta = max |D_{obs}(x) - D_{src}(x)|$$
 
 Now we can define DNA sequence reconstruction problem in a better way:
 
-\begin{definition}{DNA sequence reconstruction problem 2.}
+\begin{definition}{DNA sequence reconstruction problem.}
 Given set of reads $\mathcal{F}$ and error rate $\varepsilon$, find
 a sequence $S$ and $\varepsilon$-valid layout which has minimal
 maximum deviation between observed and source distrition of reads.
 \end{definition}
 
+There are none theoretical results known to us about this formulation
+(the original paper focuses more on devoloping branch-and-bound algorithm
+than on theoretical results about NP-hardness and approximation).
+But we suspect that it is also NP-hard as others.
+
 There are still some ambiguities and problems with this formulation.
-One can for example find two solutions which have same maximum deviation
+One can for example find two solutions which have the same maximum deviation
 but differ in one base.
 Also this formulation can be extended to account for contaminated and paired
 reads.
+
+Nevertheless, these formulations have never been used to design
+a pracical sequence assembler, because they exact solutions are too slow
+and approximate solutions are not good for practice.
+
+More popular approach is to design heuristic solutions, which we describe in the next
+section.
 
 \subsection{Assembly algorithms overview}
 
 Almost all assembly algorithms used in practice are some form of heuristics
 without well defined formulation, proof of correctness, etc.
-There are well defined algorithms, for example algorithm by \cite{Medvedev2009}
-which uses bidirectional flows, but they practical use is very limited (this one
-assumes error-free reads).
-
-The goal of assembly algorithms is to "glue" reads which can be unambiguously glued together.
+%There are well defined algorithms, for example algorithm by \cite{Medvedev2009}
+%which uses bidirectional flows, but they practical use is very limited (this one
+%assumes error-free reads).
+In general, these heuristics proceed to "glue" reads which can be
+unambiguously glued together and building assembly step by step
+without following clear optimalization criteria.
 They use efficient representation of overlaps between reads and try to resolve
 ambiguous regions using paired end reads and long reads.
 
 The good review of assembly algorithms can be found in \cite{miller2010assembly}.
 They can be divided into two types by representation of overlaps they use.
 
-The overlap-layout-consensus algorithms use overlap graph, which directly represents
-overlaps between reads (two reads are connected by edge, if there is a sufficiently long overlap between them).
+The overlap-layout-consensus (OLC) algorithms use overlap graph, which directly represents
+overlaps between reads (two reads are connected by edge, if there is a sufficiently long overlap between them). It was first suggested in \cite{myers1995toward}.
 To produce this graph we need to find sufficiently long
-overlaps between all reads (and this overlap not need to be exact, we usually allow small edit distance between overlapping parts).
-This often leads to algorithms which have quadratic
+overlaps between all reads (and this overlap not need to be exact, we usually allow small edit distance between overlapping parts). This often leads to algorithms which have quadratic
 complexity to the number of reads (but can be often speeded up by various heuristics).
+
 After finding overlaps we usually perform removing of transitive edges (we remove edge
 from $u$ to $w$ if there is an vertex $v$ and edges from $u$ to $v$ and from $v$ to $w$).
-
 In the layout step we try to find reasonable layout of reads in the assembly.
+Assemblers usually start by joining reads which can be joined unambiguosly (i.e.
+when read $u$ is only one following read $v$ and $v$ is only one preceeding $u$).
+and then uses information from paired reads to resolve areas around repeats.
+
 Finally, in consensus step we perform base calling, e. g. if 10 reads overlaps in
 one possitions and 9 of them says the base should be $A$ and one says $G$ we decide the base to
 be $A$.
 
-\medskip
+Typical example of OLC algorithm is Celera (\cite{Celera}).
+It was mainly used for assembling of Sanger reads. But the OLC
+framework was not suitable for assembling Illumina reads due to large number
+of rather short reads (three to ten times shorter than Sanger reads), which
+would dramaticaly increase the number of overlaps. 
+The OLC algorithms has gained popularity after introducing PacBio reads
+which have much higher length (so we have fewer reads) but much higher error.
+Due to high error rate, the overlap phase is quite challenging, but
+doable with careful implementation (see \cite{myers2014efficient}). 
 
-The other algorithms use De Bruijn graphs, which do not work directly with reads, but
-with sequences of $k$-bases ($k$-mers). The nodes in De Bruijn graph represent $k$-mers
+\bigskip
+
+The other algorithms use de Bruijn graphs, which do not work directly with reads, but
+with sequences of $k$-bases ($k$-mers). The nodes in de Bruijn graph represent $k$-mers
 and edges represent adjacencies between $k$-mers in reads. Note that time
 required to construct this graph is linear in the length of reads, but on the other hand
 we lose some information since we are not working with whole reads.
+After constructing de Bruijn graph we can join $k$-mer which be
+unambiguously joined and then apply various heuristics for resolving repeats.
+We will describe de Bruijn graphs in more detail in the next chapter.
+Typical example of de Bruijn assembler is Velvet (\cite{Velvet}).
+
+\bigskip
+TODO mozny nejaky overview assemblerov
