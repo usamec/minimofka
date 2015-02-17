@@ -44,6 +44,77 @@ either substitutions or insertions and deletions.
 contigs at missassemblies.
 \end{itemize}
 
+\section{Read mapping}
+
+Many techniques for evaluating assembly rely on finding
+positions of original reads in the assembly. This process is often called read mapping.
+In this section we will give an overview of read mapping and algorithms and tools used for it.
+
+The goal of read mapping is to find positions in DNA sequence where the read might be sequenced
+from. We are usually trying to find positions with as smallest edit distance as possible
+(but sometimes we use more complicated metrics, due to prevalence some types of errors in reads).
+Formally we can state that given DNA sequence $S$ and read $R$, the goal of read mapping
+is to find substring $T$ of $S$ such that edit distance between $R$ and $T$ is as small as possible.
+
+The exact algorithms for read mapping are variants of classical dynamic programming algorithms
+for finding edit distance of two strings, like Smith-Watterman algorithm (\cite{sm}).
+Basically we are calculating numbers $T[i][j]$ where $T[i][j]$ is a lowest possible edit
+distance between some suffix of $S[1..i]$ and $R[1..j]$. 
+Unfortunatelly, finding mapping for one read using this algorithm takes $O(|S||R|)$ time,
+which is too much considering that DNA sequence has length at millions and we usually have
+few million reads.
+
+Practical algorithms for read mapping can be divided into two types:
+Hash based seed and extend algorithms and algorithms based on suffix arrays and their extensions.
+
+Hash based algorithms are based on observation that with high
+probability some substring of read of length at least $k$ (where $k$ is somewhere
+between 13 and 20) is conserved without errors. These conserved substring
+are called seeds. 
+We can index the DNA seqeunce and then find all possible seeds matches for read.
+This is usually done using hash tables. After finding seeds we do
+dynamic programming in small area around seed location.
+Examples of tools using this approach 
+include BLAST, BLAT and many others \citep{blast,blat}.
+
+Other group of read mappers uses extension of suffix arrays called FM-index
+\citep{fmindex, fmindex2}, which we will now describe:
+
+\paragraph{Burrows-Wheeler transform.} Given sequence $S = s_1 s_2 \dots s_n$, where
+$s_n = \$$. Burrows-Wheeler transform (BWT) of $S$ is constructed
+by lexicographically ordering all cyclical rotations of $S$ and then
+taking last characters from each rotations.
+Formally if $S_i$ is rotation starting at $i$-th positions of $S$ and array
+$X_i$ is index of $i$-th lexicographically smallest rotation, the
+BWT of $S$ is sequence $B = S_{X_1}[n] S_{X_2}[n] \dots S_{X_n}[n]$.
+Using standard algorithms for construction of suffix array we
+can construct BWT of $S$ in $O(|S|)$ time and space.
+TODO obrazok
+
+\paragraph{Indexing using BWT.}
+BWT can be used to find occurrence of string $P$ in $S$ as a substring.
+Denote $C(a)$ as a smallest index $i$ where $S_{X_i}[0] = a$ (it is also
+a total number of characters smaller than $a$ in $S$).
+Denote $Occ(a,i)$ as as number of occurences of $a$ in $B[1], \dots, B[i]$.
+The goal of the indexing is to find and interval $(b, e)$ such that
+$b$ is the smallest number where $P$ is a prefix of $S_{X_b}$
+and $e$ is the largest number where $P$ is a prefix of $S_{X_e}$.
+If we know interval $(b, e)$ for $P$, then the interval for
+$aP$ is given as:
+$$(C(a) + Occ(a, b - 1) + 1, C(a) + Occ(a, e))$$
+
+Using this formula we can calculate interval for any pattern (note that
+the interval for empty string is $(1, |S|)$). We can also implement
+backtracking to allow inexact matching of the pattern. 
+Improved algorithms for inexact matching are described by \citet{fmindex3}.
+
+To achieve good space complexity we use compressed represenation
+of arrays $B$, $Occ$ and $C$ and some samples from array $X$ (we can reconstruct
+array $X$ using samples and data from $B$).
+
+Example of FM-index based read mappers are Bowtie2, BWA and SOAP
+\citep{bowtie2,fmindex,soap}.
+
 \section{REAPR}
 
 If we have access to original reads and the assembly we can find locations

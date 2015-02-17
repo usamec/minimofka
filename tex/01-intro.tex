@@ -33,8 +33,8 @@ common superstring is a shortest string $S$, that contains every string
 from $\mathcal{P}$ as a substring.
 \end{definition}
 
-But unfortunately, finding shortest common superstring if NP-hard (\cite{SCShard}).
-There is a known $2.5$-approximation algorithm (\cite{SCSapx}).
+But unfortunately, finding shortest common superstring is NP-hard \citep{SCShard}.
+There is a known $2.5$-approximation algorithm \citep{SCSapx}.
 The most common greedy heuristic for this problem is:
 \begin{verbatim}
 When there is more than one string:
@@ -62,7 +62,7 @@ common superstring would be:
 $$AA\textcolor{red}{CGTA}\textcolor{green}{CGTA}GG$$
 
 We have lost one repetition of repeated sequence. Such repeated sequences are
-very common in real DNA sequences (see \cite{DNARep}).
+very common in real DNA sequences \citep{DNARep}.
 
 %If we assume uniform
 %sampling from original sequence we might estimate the number of repeated substring
@@ -138,7 +138,7 @@ is called insert size.
 There are several sequecing technologies currently available. They vary
 in many properties like cost, read length, accuracy, etc.
 We summarize currently used sequencing technologies in \ref{tab:techs},
-based on data from \cite{seq1}, \cite{seq2}.
+based on data from \citet{seq1,seq2}.
 We also added statistics of old Sanger sequencing for comparison.
 
 \begin{table}[h]
@@ -184,7 +184,7 @@ which:
 \bigskip
 
 To account for the possibility of sequencing errors, 
-Kececioglu et al. \cite{kececioglu1995combinatorial}
+\citet{kececioglu1995combinatorial}
 proposed a variant of shortest common supersting problem. 
 
 \begin{definition}{Shortest common superstring with errors.}
@@ -197,7 +197,7 @@ $$min(d(A,B), d(\bar{A}, B)) \leq \varepsilon |A|$$
 This formulation can be also extended to account for contaminated reads and paired reads.
 While accounting for sequencing errors, this formulation is still problematic
 since it compresses repeated regions in the genome.
-Not surprisingly, this problem is NP-hard (\cite{kececioglu1991exact}).
+Not surprisingly, this problem is NP-hard \citep{kececioglu1991exact}.
 
 \bigskip
 
@@ -205,7 +205,7 @@ One way of estimating the number of repeats regions is to observe
 that if we collapse some repeated regions there we will see far
 more reads coming from collapsed regions that from others. 
 
-This is used in formulation given by \cite{myers1995toward}. It considers
+This is used in formulation given by \citet{myers1995toward}. It considers
 coverage of the output sequence by reads and wants it to be as uniform as possible.
 
 We consider our reconstructed string $S$ and the positions of reads (layout)
@@ -263,11 +263,11 @@ without following clear optimalization criteria.
 They use efficient representation of overlaps between reads and try to resolve
 ambiguous regions using paired end reads and long reads.
 
-The good review of assembly algorithms can be found in \cite{miller2010assembly}.
+The good review of assembly algorithms can be found in \citet{miller2010assembly}.
 They can be divided into two types by representation of overlaps they use.
 
 The overlap-layout-consensus (OLC) algorithms use overlap graph, which directly represents
-overlaps between reads (two reads are connected by edge, if there is a sufficiently long overlap between them). It was first suggested in \cite{myers1995toward}.
+overlaps between reads (two reads are connected by edge, if there is a sufficiently long overlap between them). It was first suggested by \citet{myers1995toward}.
 To produce this graph we need to find sufficiently long
 overlaps between all reads (and this overlap not need to be exact, we usually allow small edit distance between overlapping parts). This often leads to algorithms which have quadratic
 complexity to the number of reads (but can be often speeded up by various heuristics).
@@ -283,7 +283,7 @@ Finally, in consensus step we perform base calling, e. g. if 10 reads overlaps i
 one possitions and 9 of them says the base should be $A$ and one says $G$ we decide the base to
 be $A$.
 
-Typical example of OLC algorithm is Celera (\cite{Celera}).
+Typical example of OLC algorithm is Celera \citep{Celera}.
 It was mainly used for assembling of Sanger reads. But the OLC
 framework was not suitable for assembling Illumina reads due to large number
 of rather short reads (three to ten times shorter than Sanger reads), which
@@ -291,7 +291,7 @@ would dramaticaly increase the number of overlaps.
 The OLC algorithms has gained popularity after introducing PacBio reads
 which have much higher length (so we have fewer reads) but much higher error.
 Due to high error rate, the overlap phase is quite challenging, but
-doable with careful implementation (see \cite{myers2014efficient}). 
+doable with careful implementation \citep{myers2014efficient}. 
 
 \bigskip
 
@@ -303,7 +303,7 @@ we lose some information since we are not working with whole reads.
 After constructing de Bruijn graph we can join $k$-mer which be
 unambiguously joined and then apply various heuristics for resolving repeats.
 We will describe de Bruijn graphs in more detail in the next chapter.
-Typical example of de Bruijn assembler is Velvet (\cite{Velvet}).
+Typical example of de Bruijn assembler is Velvet \citep{Velvet}.
 
 \bigskip
 TODO mozny nejaky overview assemblerov
