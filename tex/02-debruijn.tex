@@ -1,45 +1,58 @@
-\chapter{De Bruijn graphs}
+\chapter{De Bruijn Graphs}
 
-De Bruijn graph (\cite{de1946combinatorial}) is a structure for representing
-overlaps between sequences of symbols.
+TODO uvod
 
-De Bruijn graph is directed graph. 
-For given $k$, vertices of De Bruijn graph represent sequences of length $k$
-($k$-mers). The edges of De Bruijn graph represent possible overlaps, i. e. 
+A de Bruijn graph \citep{de1946combinatorial} is a structure for representing
+overlaps between strings.
+
+\begin{definition}{De Bruijn graph.}
+A De Bruijn graph is directed graph. 
+For given $k$, vertices of de Bruijn graph represent sequences of length $k$
+($k$-mers). The edges of de Bruijn graph represent possible overlaps of length $k-1$, i. e. 
 if have have an edge $(u, v)$ and vertex $u$ represents $k$-mer $a_1, a_2, \dots, a_k$, then
 vertex $v$ represents $k$-mer $a_2, a_3, \dots, a_k, x$ and $k$-mer in vertex $v$ can
 follow $k$-mer in vertex $u$.
+\end{definition}
 
-\section{De Bruijn graphs for assembly}
+Besides application in DNA sequencing, de Bruijn graphs are use
+in design of fault tolerant networks \citep{ftndeb} and 
+distributed hash tables \citep{koorde}.
 
-We can use De Bruijn graphs for DNA sequence assembly in a following way
-(\cite{pevzner2001eulerian}, \cite{Velvet}):
+\section{De Bruijn Graphs for Sequence Assembly}
 
-We are given odd number $k$.
-Each vertex represents one $k$-mer. For each vertex $v$ there is a twin vertex $v^{'}$ which
-represents reverse complemented $k$-mer (we need to do this to deal with reads
-coming from reverse complement part of the DNA). Union of $v$ and $v^{'}$ is called a block.
+
+De Bruijn graphs used for sequence assembly
+\citep{pevzner2001eulerian,Velvet} have few modifications
+to accomodate for possibility of reads coming from both strands of DNA.
+
+For each vertex $v$ there is a twin vertex $v^{'}$ which
+represents reverse complemented $k$-mer. Union of $v$ and $v^{'}$ is called a block.
 During manipulation of De Bruijn graph any change applied to node $v$ is also symetrically
-applied to its twin $v^{'}$. To ensure, that some $k$-mer is to same as its reverse complement,
-$k$ must be an odd number.
+applied to its twin $v^{'}$.
+To ensure that some $k$-mer is not the same as its reverse complement, $k$ must be an odd number.
 
-Vertices $u$, $v$ in De Bruijn graph can be connected by directed arcs if the last
+Vertices $u$, $v$ in the de Bruijn graph can be connected by directed arcs if the last
 $k-1$ bases of $u$ are same as the first $k-1$ bases in $v$. Also note that
-if there is an edge between vertices $u$, $v$ there is an inverted edge between their twins,
+if there is an edge between vertices $u$, $v$, there is an inverted edge between their twins,
 i.e. there is an edge from $v^{'}$ to $u^{'}$.
 
-We construct De Bruijn graph from reads in straighforward way.
-We extract every $k$-mer from each reads and its reverse complement.
-That we joined by edge each pair of $k$-mer which are overlapped in some read.
-Some assemblers also record some simple statistics like multiplicity of each vertex or edge. 
-This construction can be done in efficient way by using hash tables, like in Velvet (\cite{Veltet}).
-There are also space-efficient representations of De Bruijn graphs based on Bloom filters (\cite{minia}).
+We construct De Bruijn graph from reads in a straighforward way.
+We extract every $k$-mer from each read and its reverse complement.
+Then we join by edge each pair of $k$-mers which are consecutive in some read.
+Some assemblers also record simple statistics that will be useful in later
+stages of the assembly process, such as multiplicity of each vertex or edge.
+
+This construction can be done in efficient way by using hash tables, like in Velvet \citep{Veltet}.
+There are also space-efficient representations of De Bruijn graphs based on Bloom filters \citep{minia}.
 
 TODO obrazok
 
-After constructing De Bruijn graph we have several options how to produce the assembly:
+After constructing de Bruijn graph the assembly can be represented
+as a set of walks in de Bruijn graph. Different assemblers
+have different criteria on optimal set of walks in de Bruijn graph. 
 
-We can look for Eulerian path through graph. Even better approach is to look for
+One approach is to look for Eulerian path through graph.
+Even better approach is to look for
 Eulerian superpath -- the path which visits every read, i.e. if some read
 is broken into vertices $v_1, v_2, \dots, v_n$, then the Eulerian superpath
 should contain $v_1, \dots, v_n$ as subpath.
@@ -49,40 +62,44 @@ Given graph $G$ and set of paths $\mathbb{P}$ find path $P$, which contains
 every path from $\mathbb{P}$ as subpath.
 \end{definition}
 
-Euler assembler (\cite{pevzner2001eulerian}) solves some instances of Eulerian superpath problem
-using simple transformations which transform Eulerian superpath instance to equivalend Eulerian path instance.
+Euler assembler \citep{pevzner2001eulerian})solves some instances of Eulerian superpath problem
+using simple transformations which transform Eulerian superpath instance to equivalent Eulerian path instance.
 
 Other assemblers like Velvet (\cite{Velvet}) just join vertices which can be joined
 unambiguosly, i.e. they join vertices $u$, $v$ is there is an edge from $u$ to $v$ and
 it is only edge comming out of $u$ and only edge comming into $v$. After this joining
 each vertex represents one contig of the assembly.
 
-\subsection{Handling sequencing errors}
+\subsection{Handling Sequencing Errors}
 
-Sequencing errors in reads increase complexity of the De Bruijn graph
-(\cite{pevzner2001eulerian}). The common artefacts in graph are tips and bubbles
-(TODO obrazok). Assemblers like Velvet (\cite{Velvet}), ABySS (\cite{Abyss}) handle
-errors directly in De Bruijn graph by detecting this artefacts and removing them.
+Sequencing errors in reads increase complexity of the de Bruijn graph
+\citep{pevzner2001eulerian}. The common artefacts in a graph that
+appear due to sequencing errors are tips and bubbles
+(TODO obrazok). Assemblers like Velvet \citep{Velvet}, ABySS \citep{Abyss} handle
+errors directly during the construction of de Bruijn graph by detecting these artefacts
+and removing them.
 
-The naive approch to fix errors in graph can be to remove all $k$-mers with low coverage.
+The naive approach would be to remove all $k$-mers with low coverage.
 This can be problematic since some sequencing technologies do not produce reads with uniform coverage
-and we will remove good low coverage regions and we can cause the graph to be disconnected.
+and consequently we would remove good low coverage regions and consequently the graph would become disconnected.
+Instead several more sophisticated techniques have been proposed to remove
+most of the artefacts in de Bruijn graph.
 
 \paragraph{Removing tips.} A tip is chain of vertices disconnected at one end. 
 Tips usually represent some local errors in the reads. Their removal is pretty straighforward
 and removing them does not destroy connectivity in the graph. But sometimes the tips
-might represent correct sequence which is interupted by gap in the coverage.
-Velvet (\cite{Velvet}) removes tips, which are at most $2k$ bases long and the edge starting
+could represent correct sequence interupted by a gap in the coverage.
+Velvet \citep{Velvet} removes tips, which are at most $2k$ bases long and the edge starting
 the tip has lower multiplicity that some other edge in the branching vertex.
 
-\paragraph{Removing bubbles.} Two paths which start and end at the same nodes (form a bubble)
-and contain similar sequences might be considered redundant.
-For example these bubbles might be caused by small error in the middle of the read.
-Velvet find similar path using following algorithm:
-It starts breath first search like algorithm from arbitrary vertex, but considers higher converage
-arcs as shorter. Whenever it encounters previous visited vertex $v$ it tries to find closest common ancestor
-of current path and shortest path $v$. Then it extract seqeunce belonging to two paths and if this two
-paths is judged as similar enough the longer path is merged into shorter one. 
+\paragraph{Removing bubbles.} Bulles are two or more paths which share start and end vertices
+and contain similar sequences.
+Such bubbles are typically caused by small error in the middle of the read.
+Velvet finds such similar paths using the following algorithm:
+It starts breadth first search like algorithm from an arbitrary vertex, but considers higher converage
+arcs as shorter. Whenever it encounters previously visited vertex $v$ it tries to find closest common ancestor
+of the current path and shortest path to $v$. TODO obrazok. Then it extract seqeunce belonging to bothpaths and
+if these two paths are judged to be similar enough, the longer path is merged into the shorter one. 
  
 \bigskip
 
