@@ -45,7 +45,10 @@ stages of the assembly process, such as multiplicity of each vertex or edge.
 This construction can be done in efficient way by using hash tables, like in Velvet \citep{Velvet}.
 There are also space-efficient representations of De Bruijn graphs based on Bloom filters \citep{minia}.
 
-TODO obrazok
+\begin{figure}
+  \centerline{\includegraphics[scale=0.5]{../figures/db.pdf}}
+  \caption{Example of de Bruijn graph constructed from reads: \texttt{AACA}, \texttt{CTTG}, with $k=2$.}
+\end{figure}
 
 After constructing de Bruijn graph the assembly can be represented
 as a set of walks in de Bruijn graph. Different assemblers
