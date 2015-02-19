@@ -1,11 +1,19 @@
 \chapter{De Bruijn Graphs}
 
-TODO uvod
+In this chapter, we discuss de Bruijn graphs, which are important tools
+for handling short reads and serve as a foundation for many assembly algorithms.
+We will discuss definition and construction of de Bruijn graphs,
+techniques for handling sequencing errors and then we will show several
+options for handling paired reads. In the end we will show another
+application of de Bruijn graphs as a tool for correcting long read with high error
+rate by short reads with low error rate.
+
+\bigskip
 
 A de Bruijn graph \citep{de1946combinatorial} is a structure for representing
 overlaps between strings.
 
-\begin{definition}{De Bruijn graph.}
+\begin{definition}[De Bruijn graph]
 A De Bruijn graph is directed graph. 
 For given $k$, vertices of de Bruijn graph represent sequences of length $k$
 ($k$-mers). The edges of de Bruijn graph represent possible overlaps of length $k-1$, i. e. 
@@ -14,7 +22,7 @@ vertex $v$ represents $k$-mer $a_2, a_3, \dots, a_k, x$ and $k$-mer in vertex $v
 follow $k$-mer in vertex $u$.
 \end{definition}
 
-Besides application in DNA sequencing, de Bruijn graphs are use
+Besides application in DNA sequencing, de Bruijn graphs are used
 in design of fault tolerant networks \citep{ftndeb} and 
 distributed hash tables \citep{koorde}.
 
@@ -75,10 +83,22 @@ each vertex represents one contig of the assembly.
 
 \subsection{Handling Sequencing Errors}
 
+\begin{figure}
+  \centerline{\includegraphics[scale=0.9]{../figures/tips.pdf}}
+  \caption{Example of two tips (in black).}
+  \label{fig:tips}
+\end{figure}
+
+\begin{figure}
+  \centerline{\includegraphics[scale=0.9]{../figures/bubble.pdf}}
+  \caption{Example of bubble with two paths marked in black and gray.}
+  \label{fig:bubble}
+\end{figure}
+
 Sequencing errors in reads increase complexity of the de Bruijn graph
 \citep{pevzner2001eulerian}. The common artefacts in a graph that
 appear due to sequencing errors are tips and bubbles
-(TODO obrazok). Assemblers like Velvet \citep{Velvet}, ABySS \citep{Abyss} handle
+(see Fig. \ref{fig:tips}, \ref{fig:bubble}). Assemblers like Velvet \citep{Velvet}, ABySS \citep{Abyss} handle
 errors directly during the construction of de Bruijn graph by detecting these artefacts
 and removing them.
 
