@@ -42,7 +42,7 @@ Then we join by edge each pair of $k$-mers which are consecutive in some read.
 Some assemblers also record simple statistics that will be useful in later
 stages of the assembly process, such as multiplicity of each vertex or edge.
 
-This construction can be done in efficient way by using hash tables, like in Velvet \citep{Veltet}.
+This construction can be done in efficient way by using hash tables, like in Velvet \citep{Velvet}.
 There are also space-efficient representations of De Bruijn graphs based on Bloom filters \citep{minia}.
 
 TODO obrazok
@@ -98,7 +98,7 @@ Such bubbles are typically caused by small error in the middle of the read.
 Velvet finds such similar paths using the following algorithm:
 It starts breadth first search like algorithm from an arbitrary vertex, but considers higher converage
 arcs as shorter. Whenever it encounters previously visited vertex $v$ it tries to find closest common ancestor
-of the current path and shortest path to $v$. TODO obrazok. Then it extract seqeunce belonging to bothpaths and
+of the current path and shortest path to $v$. TODO obrazok. Then it extract seqeunce belonging to both paths and
 if these two paths are judged to be similar enough, the longer path is merged into the shorter one. 
  
 \bigskip
@@ -107,33 +107,43 @@ Other option is to use tools like QUAKE (\cite{Quake}), which try to correct rea
 without assembling them. This tools usualy consider $k$-mers with low abundance
 as errornous and try to correct them using few simple edits in reads.
 
+After correcting for errors, we usually simplify de Bruijn graph by joining vertices
+with unambiguous connection as mentioned above. 
+We can use this vertices as a base for forming contigs of the assembly.
+Most assemblers goes further and use various heuristics
+to incorporate information from long and paired reads.
+In the next section we will look more into handling paired reads.
 
-\subsection{Achieving longer contigs}
+\section{Handling Paired Reads}
 
-When using De Bruijn graphs we discarded a lot of continuity information from reads.
-For example if we have reads of length $100$ bases, we can resolve assembly around repeats
-of length up $100$ bases. But after we construct De Bruijn graph with $k = 33$ we are only
-able to resolve assembly around repeats of length up to $33$ bases. Also De Bruijn graphs
-do not directly support handling paired reads.
+De Bruijns graphs do not incorporate any information from paired reads.
+In this chapter we describe two options for incorpoating this information:
+heuristic postprocessing and paired e Bruijn graphs.
 
-For example ABySS (\cite{Abyss}) uses paired reads in following way:
-After initial error correction in De Bruijn graph in align paired reads
+\subsection{Heuristic Postprocessing for Paired Reads}
+
+ABySS (\cite{Abyss}) uses paired reads in the following way:
+After initial error correction in De Bruijn graph, we align paired reads
 to reasonably long vertices in De Bruijn graph. Two vertices are considered linked
-if there at least $p$ read pairs (usually $p=5$) which join the vertices.
+if there are at least $p$ read pairs (usually $p=5$) which join the vertices.
 We denote $P_i$ the set of vertices which are linked to vertex $v_i$.
 Then we perform search for single unique path from $v_i$ through De Bruijn graph which visits
 each vertex from $P_i$. We usualy limit this search by estimated distance from $v_i$ to each element
 from $P_i$. This process is performed for each vertex and final consistent paths are stitched to final assembly.
 
-\section{Pair De Bruijn graphs}
+TODO alpaths
 
-De Bruijn graphs do not incorporate any information from paired reads.
-Assemblers mentioned above usually use information from paired reads only in heuristics postprocessing.
-These heuristics usually work well is simple cases, but fail when assembly contains several repeated regions after each other.
+\subsection{Paired de Bruijn Graphs}
 
-Interesting concept are paired De Bruijn graphs (\cite{Paired}) which try to incorporate paired read
-information directly info De Bruijn graph. In the following we will present construction of 
-paired De Bruijn graph. For simplicity we will ignore reverse complements a problems associated with it.
+\citet{Paired} argues that heuristic postprocessing
+usually works well is simple cases, but fails when assembly contains
+several repeated regions after each other.
+
+He introduces concept concept of paired De Bruijn graphs (\cite{Paired}) to incorporate paired read
+information directly into the de Bruijn graph.
+In the following we will present the construction of 
+paired de Bruijn graph.
+For simplicity, we will ignore reverse complements and problems associated with that.
 
 \paragraph{Paired De Bruijn graphs with exact insert sizes.}
 Let $k$-bimer be pair of two $k$-mer $(a, b)$. Each vertex represents one $k$-bimer and edges represent
