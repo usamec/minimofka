@@ -14,6 +14,22 @@ In this work, we describe theoretical background of sequence assembly,
 current algorithms and heuristics used in practice and also related 
 problems of evaluating quality of sequence assembly.
 
+In the rest of this chapter we describe basics of sequence assembly,
+several real life complications and provide basic overview of theoretical
+formulations and practical algorithms used for sequence assembly.
+
+The second chapter is decicated to de Bruijn graphs, which
+is important data structure in sequence assembly and has many other
+applications in processing DNA sequences.
+
+In the third chapter we discuss various approaches for evaluating
+quality of the resulting assembly and comparing assemblies.
+
+The fourth chapter contains our PhD project where we
+shortly describe one of our papers and provide multiple
+options for future research.
+
+
 \section{Problem of the Sequence Assembly}
 
 For the purpose of this work we can view DNA sequence as a string over the
@@ -27,7 +43,7 @@ The goal of sequence assembly is to reconstruct original string.
 Perhaps the oldest formulation of this task as a computer science
 problem is the shortest common supersting problem:
 
-\begin{definition}{Shortest common supersting.}
+\begin{definition}[Shortest common supersting]
 Given set of strings $\mathcal{P} = \{S_1, S_2, \dots, S_k\}$, the shortest
 common superstring is a shortest string $S$, that contains every string
 from $\mathcal{P}$ as a substring.
@@ -83,10 +99,10 @@ Due to these problems it is obvious that finding shortest common supersting
 is not a good formulation for sequence assembly. 
 In practice our goals are usually more humble and we are satisfied with reconstructing
 umambigous parts of the DNA sequence. Assembly tools
-usually produce substrings from the original sequence called contigs.
+usually produce substrings from the original sequence called {\bf contigs}.
 Sometimes they are also able to detect approximate distance between contigs
 (but cannot infer DNA sequence between them), so they join
-contigs into scaffolds. Scaffold is a sequence of contigs with known
+contigs into scaffolds. {\bf Scaffold} is a sequence of contigs with known
 approximate distance between them. 
 This unknown areas are ofter represented as a strings of several $N$-s.
 
@@ -99,9 +115,9 @@ In practice, there are several complications which make the sequence assembly ev
 In the following text we mention the major ones.
 
 \paragraph{Reverse complement.} 
-The DNA comes in two strands, which are reverse complementes to each other.
+The DNA comes in two strands, which are reverse complements to each other.
 
-\begin{definition}{Reverse complement}
+\begin{definition}[Reverse complement]
 For given DNA sequence $s$ its reverse complement is defined as
 $RC(s) = h(s^R)$, where $h(\cdot)$ is a homomorphism where $h(A) = T, h(C) = G,
 h(G) = C, h(T) = A$. 
@@ -128,10 +144,10 @@ have high amount of insertions.
 There are also reads which do not belong to the sequenced genome, but are result
 of a contamination.
 
-\paragraph{Paired-end reads}
+\paragraph{Paired reads}
 Some technologies produces reads in pairs for which we know appoximate distance
 in the genome. The total length of reads plus approximate distance between reads
-is called insert size.
+is called {\bf insert size}.
 
 \subsection{Sequencing technologies}
 
@@ -145,8 +161,8 @@ We also added statistics of old Sanger sequencing for comparison.
 \centering
 \begin{tabular}{|c|c|c|c|c|c|c|}
 \hline
-\multirow{2}{*}{Technology} & Read   & Error & Paired end & Cost per      & Reads   & Time \\
-                            & length & rate  & reads      & million bases & per run & per run \\\hline
+\multirow{2}{*}{Technology} & Read   & Error & Paired & Cost per      & Reads   & Time \\
+                            & length & rate  & reads  & million bases & per run & per run \\\hline
 Sanger & 900 & $0.1\%$ & Yes & $\$2400$ & N/A & few hours\\\hline
 454 & 700 & $0.1\%$ & Yes & $\$10$ & 1 million & one day\\\hline
 Illumina & 50 - 300 & 2\% & Yes & $\$0.05 - \$0.15$ & up to 3 billion & few days\\\hline
@@ -173,7 +189,7 @@ used assembly algorithms.
 To sum up previous sections, we are trying to reconstruct DNA seqence from reads,
 which:
 \begin{itemize}
-\itemsep-0.2pt
+\itemsep-0pt
 \item Are much smaller than original sequence.
 \item Have unknown orientation.
 \item Contain errors.
@@ -261,11 +277,12 @@ In general, these heuristics proceed to "glue" reads which can be
 unambiguously glued together and building assembly step by step
 without following clear optimalization criteria.
 They use efficient representation of overlaps between reads and try to resolve
-ambiguous regions using paired end reads and long reads.
+ambiguous regions using paired reads and long reads.
 
 The good review of assembly algorithms can be found in \citet{miller2010assembly}.
 They can be divided into two types by representation of overlaps they use.
 
+\paragraph{Overlap-layout-consensus algorithms.}
 The overlap-layout-consensus (OLC) algorithms use overlap graph, which directly represents
 overlaps between reads (two reads are connected by edge, if there is a sufficiently long overlap between them). It was first suggested by \citet{myers1995toward}.
 To produce this graph we need to find sufficiently long
@@ -277,9 +294,9 @@ from $u$ to $w$ if there is an vertex $v$ and edges from $u$ to $v$ and from $v$
 In the layout step we try to find reasonable layout of reads in the assembly.
 Assemblers usually start by joining reads which can be joined unambiguosly (i.e.
 when read $u$ is only one following read $v$ and $v$ is only one preceeding $u$).
-and then uses information from paired reads to resolve areas around repeats.
+and then use information from paired reads to resolve areas around repeats.
 
-Finally, in consensus step we perform base calling, e. g. if 10 reads overlaps in
+Finally, in consensus step we perform base calling, e. g. if 10 reads overlap in
 one possitions and 9 of them says the base should be $A$ and one says $G$ we decide the base to
 be $A$.
 
@@ -289,21 +306,30 @@ framework was not suitable for assembling Illumina reads due to large number
 of rather short reads (three to ten times shorter than Sanger reads), which
 would dramaticaly increase the number of overlaps. 
 The OLC algorithms has gained popularity after introducing PacBio reads
-which have much higher length (so we have fewer reads) but much higher error.
+which have much higher length (so we have fewer reads) but much higher error rate.
 Due to high error rate, the overlap phase is quite challenging, but
 doable with careful implementation \citep{myers2014efficient}. 
 
-\bigskip
-
+\paragraph{De Bruijn graphs.}
 The other algorithms use de Bruijn graphs, which do not work directly with reads, but
-with sequences of $k$-bases ($k$-mers). The nodes in de Bruijn graph represent $k$-mers
+with sequences of $k$-bases ($k$-mers) which occur in reads. The nodes in de Bruijn graph represent $k$-mers
 and edges represent adjacencies between $k$-mers in reads. Note that time
 required to construct this graph is linear in the length of reads, but on the other hand
 we lose some information since we are not working with whole reads.
-After constructing de Bruijn graph we can join $k$-mer which be
+After constructing de Bruijn graph we can join $k$-mers which be
 unambiguously joined and then apply various heuristics for resolving repeats.
 We will describe de Bruijn graphs in more detail in the next chapter.
 Typical example of de Bruijn assembler is Velvet \citep{Velvet}.
 
-\bigskip
 TODO mozny nejaky overview assemblerov
+
+\section{Summary}
+
+In this chapter we provided basic overview of sequenced assembly problem
+and its real life complications (reverse complemnts, errors in reads,
+diploid genomes, paired reads, multiple technologies). 
+We showed that the sequence assembly problem is hard to formulate
+as a typical computer science problem (with clear notion of output and objective function)
+and showed some attempts for its formulation.
+We discussed several practical approaches for sequence assembly problem like
+using overlap-layout-consensus framework and de Bruijn graphs.
