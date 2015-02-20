@@ -76,7 +76,7 @@ every path from $\mathbb{P}$ as subpath.
 Euler assembler \citep{pevzner2001eulerian})solves some instances of Eulerian superpath problem
 using simple transformations which transform Eulerian superpath instance to equivalent Eulerian path instance.
 
-Other assemblers like Velvet (\cite{Velvet}) just join vertices which can be joined
+Other assemblers like Velvet \citep{Velvet} just join vertices which can be joined
 unambiguosly, i.e. they join vertices $u$, $v$ is there is an edge from $u$ to $v$ and
 it is only edge comming out of $u$ and only edge comming into $v$. After this joining
 each vertex represents one contig of the assembly.
@@ -126,7 +126,7 @@ if these two paths are judged to be similar enough, the longer path is merged in
  
 \bigskip
 
-Other option is to use tools like QUAKE (\cite{Quake}), which try to correct reads
+Other option is to use tools like QUAKE \citep{Quake}, which try to correct reads
 without assembling them. This tools usualy consider $k$-mers with low abundance
 as errornous and try to correct them using few simple edits in reads.
 
@@ -145,16 +145,31 @@ heuristic postprocessing and paired e Bruijn graphs.
 
 \subsection{Heuristic Postprocessing for Paired Reads}
 
-ABySS (\cite{Abyss}) uses paired reads in the following way:
+ABySS \citep{Abyss} uses paired reads in the following way:
 After initial error correction in De Bruijn graph, we align paired reads
 to reasonably long vertices in De Bruijn graph. Two vertices are considered linked
 if there are at least $p$ read pairs (usually $p=5$) which join the vertices.
 We denote $P_i$ the set of vertices which are linked to vertex $v_i$.
 Then we perform search for single unique path from $v_i$ through De Bruijn graph which visits
 each vertex from $P_i$. We usualy limit this search by estimated distance from $v_i$ to each element
-from $P_i$. This process is performed for each vertex and final consistent paths are stitched to final assembly.
+from $P_i$. This process is performed for each vertex and final consistent paths
+are stitched to final assembly.
 
-TODO alpaths
+Allpaths assembler \citep{allpaths} uses more complicated approach.
+It requires at least two Illumina short read libraries -- one with short insert size
+(around $100$ - $200$ bases) and one with medium insert size (around $3000$ bases).
+Their main idea is to find all possible fillings of the gap in the middle of paired read
+using using other reads (without regard to their pairing)
+having some minimum overlap K with each other, via a process of “walking” from
+one read to the other. Then they merge these filled reads to produce assembly. 
+
+To reduce computational complexity of this approach they split assembly problem
+into several regions and assemble them separately in process called localization.
+Localization starts by building de Bruijn graph of the assembly and building initial
+contigs from it. Then we select long enough contigs as seeds. 
+The region of an assembly is build from seed, its neighbourhood (everything
+in 10000 bases around the seed) and all reads from the neighbourhood.
+We assemble each region separetely and then merge result into final assembly.
 
 \subsection{Paired de Bruijn Graphs}
 
@@ -162,7 +177,7 @@ TODO alpaths
 usually works well is simple cases, but fails when assembly contains
 several repeated regions after each other.
 
-He introduces concept concept of paired De Bruijn graphs (\cite{Paired}) to incorporate paired read
+He introduces concept concept of paired De Bruijn graphs to incorporate paired read
 information directly into the de Bruijn graph.
 In the following we will present the construction of 
 paired de Bruijn graph.
@@ -196,7 +211,7 @@ TODO obrazok
 Like in the case of ordinary de Bruijn graph we need to deal with errors in reads
 and also with insert size outliers. This approach still cannot handle multiple
 read libraries with various insert sizes and combination of paired libraries and long reads.
-One implementation of this approach is SPAdes (\cite{Spades}).
+One implementation of this approach is SPAdes \citep{(Spades}.
 
 
 \section{Correction of Long Reads with High Number of Errors}
@@ -216,12 +231,12 @@ of PacBio reads, which can be cost a lot.
 
 Other way to do so this to correct Pacbio reads using shorter reads with smaller
 error rate. There are approaches which directly map short read on long reads like
-PacbioToCA (\cite{PacbioToCA}). Their downside is that this mapping step
+PacbioToCA \citep{PacbioToCA}. Their downside is that this mapping step
 is computationally very expensive.
 
 One way to speed up this mapping step is to first generate De Bruijn graph from short reads
 and then attempt to map long reads to paths in this graph. This was implemented
-in LoRDEC (\cite{Lordec}).
+in LoRDEC \citep{Lordec}.
 
 More specifically, after construction the of de Bruijn graph, we remove all vertices
 with very low coverage (to keep $k$-mers unlikely containing errors). The $k$-mers belonging
@@ -234,4 +249,9 @@ and the region of the sequence.
 
 \section{Summary}
 
-TODO
+We defined de Bruijn graph as a graph holding $k$-mers and overlaps between
+them. The typical graph formations which arise from sequencing errors are
+tips and bubbles, which could be removed from the graph. To handle paired reads
+we can either use heuristical postprocessing or paired de Bruijn graphs. 
+There are also more application of de Bruijn graphs in processing of DNA data.
+The example is using them to correct long reads with high error rate.
