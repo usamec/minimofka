@@ -133,7 +133,6 @@ is present in two copies. This two copies of each chromosome are almost identica
 contain some differences (sometimes only changes in one base, but sometimes also
 bigger variations). This poses additional chanllenge since we are trying to recostruct
 multiple similar sequences.
-TODO ako caste zmeny
 
 \paragraph{Errors in reads.}
 In practice the chemical process of sequencing DNA also produces errors.
@@ -321,7 +320,16 @@ unambiguously joined and then apply various heuristics for resolving repeats.
 We will describe de Bruijn graphs in more detail in the next chapter.
 Typical example of de Bruijn assembler is Velvet \citep{Velvet}.
 
-TODO mozny nejaky overview assemblerov
+\bigskip
+
+There are some more technical aspects of the assembly software.
+Some assemblers like AbySS \citep{Abyss} allow distributed computing
+of assembly. Also lots of assemblers
+have some special requirements for input data. For example
+Allpaths \citep{allpaths} requires two Illumina read libraries, one
+with small insert size (apx. $150$ bases) and one with longer insert
+size (apx. $3000$ bases), but optionally can use information from other libraries
+(paired read with even longer insert size or PacBio reads).
 
 \section{Summary}
 

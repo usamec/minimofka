@@ -115,13 +115,23 @@ could represent correct sequence interupted by a gap in the coverage.
 Velvet \citep{Velvet} removes tips, which are at most $2k$ bases long and the edge starting
 the tip has lower multiplicity that some other edge in the branching vertex.
 
+\begin{figure}
+  \centerline{\includegraphics[scale=0.9]{../figures/bubblefind.pdf}}
+  \caption{Example of bubble finding. We start search from node $u$. Shortest path between
+$u$ and $v$ is shown using dashed edges. When searching node $w$ we will visit node
+$v$ again. Now we can find closest common ancestor of current path to $w$ and shortest path to $v$,
+which is vertex $x$.}
+\label{fig:bubblerem}
+\end{figure}
+
 \paragraph{Removing bubbles.} Bulles are two or more paths which share start and end vertices
 and contain similar sequences.
 Such bubbles are typically caused by small error in the middle of the read.
 Velvet finds such similar paths using the following algorithm:
 It starts breadth first search like algorithm from an arbitrary vertex, but considers higher converage
 arcs as shorter. Whenever it encounters previously visited vertex $v$ it tries to find closest common ancestor
-of the current path and shortest path to $v$. TODO obrazok. Then it extract seqeunce belonging to both paths and
+of the current path and shortest path to $v$ (see Fig. \ref{fig:bubblerem}). Then it extract
+sequences belonging to both paths and
 if these two paths are judged to be similar enough, the longer path is merged into the shorter one. 
  
 \bigskip
@@ -191,7 +201,10 @@ From each pair of reads, we will produce $k$-bimers in a straighforward way:
 $i$-th $k$-bimer will be created using the $i$-th $k$-mer from the first read and 
 the $i$-th $k$-mer from the second read.
 Edges in the graph are given by consecutive pairs of $k$-mers from reads.
-TODO obrazok
+
+For example if we had paired read $ACCTG, TCGAT$ and $k = 3$, then our
+$k$-bimers would be: $(ACC, TCG), (CCT, CGA), (CTG, GAT)$ and each consecutive bimers
+would be joined by edge.
 
 To create the assembly we can use same methods as in ordinary de Bruijn graphs
 (euler paths or joining umambigously connected vertices).
@@ -200,18 +213,20 @@ To create the assembly we can use same methods as in ordinary de Bruijn graphs
 Lets assume that insert sizes are from the interval $d \pm \Delta$.
 We start by constructing paired de Bruijn graph described in previous paragraph.
 The key insight is that if two $k$-bimers $(a, b)$ and $(a, b^{'})$ come from
-the same location of $a$ then the distance of $b$ and $b^{'}$ in the ordinary De Bruijn graph is at most $2\Delta$.
+the same location of $a$ then the distance of $b$ and $b^{'}$ in the ordinary De Bruijn graph is at
+most $2\Delta$.
 
 Consequently, in the next step we will merge all vertices $(a, b)$, $(a, b^{'})$ if there is a path
 between $b$ and $b^{'}$ in ordinary De Bruijn graph with length at most $2\Delta$.
-
-TODO obrazok
+Note that sometimes me might merge vertices which do not belong to the same location of the original DNA
+sequence, but if two bimers belong to the same location of the original DNA sequence, we will merge
+them (if there is a sufficient coverage of sequencing).
 
 \bigskip
 Like in the case of ordinary de Bruijn graph we need to deal with errors in reads
 and also with insert size outliers. This approach still cannot handle multiple
 read libraries with various insert sizes and combination of paired libraries and long reads.
-One implementation of this approach is SPAdes \citep{(Spades}.
+One implementation of this approach is SPAdes assembler \citep{Spades}.
 
 
 \section{Correction of Long Reads with High Number of Errors}
@@ -235,8 +250,12 @@ PacbioToCA \citep{PacbioToCA}. Their downside is that this mapping step
 is computationally very expensive.
 
 One way to speed up this mapping step is to first generate De Bruijn graph from short reads
-and then attempt to map long reads to paths in this graph. This was implemented
-in LoRDEC \citep{Lordec}.
+and then attempt to map long reads to paths in this graph.
+This was implemented in LoRDEC \citep{Lordec}.
+The benefit of this approach is that in the former
+case there were many short reads mapped to similar location of the long read, in this
+case there are only few paths mapped to same location of the long read. In other
+words we might expect speedup proportional to the coverage of the short read sequencing.
 
 More specifically, after construction the of de Bruijn graph, we remove all vertices
 with very low coverage (to keep $k$-mers unlikely containing errors). The $k$-mers belonging
