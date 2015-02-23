@@ -31,7 +31,7 @@ To evaluate continuity of the assembly, it is vital
 to look into distribution of length of contigs.
 
 There are many ways to look at the distribution of contigs.
-We give a brief overview of metrics used in QUAST (\cite{Quast}), which
+We give a brief overview of metrics used in QUAST \citep{Quast}, which
 is a standard tool for evaluation of assemblies.
 
 First, we usually look at total length of contigs. We can have expected assembly 
@@ -64,58 +64,84 @@ gives us information in the form:
 to the substring of the reference genome starting at $c$ and ending at $d$ with $e$ edits."
 We called these aligned substrings blocks. 
 
-\begin{itemize}
-\item No. of missasemblies -- missassembly is usually defined as a positions where
-positions of block aligned on the left and block aligned on the right differ in reference
-by more that $1000$ bases or this block are on opposite strands of in different chromosomes.
-\item No. of missassembled contigs -- nubmer of contigs which contain missassembly.
-\item No. of mismatches and indels -- these statistics are interesting in one base differences,
-either substitutions or insertions and deletions.
-\item $NAx$ -- similar to $Nx$, but before computing this statistic we break
-contigs at missassemblies.
-\end{itemize}
+After finding aligned blocks we process to find missassemblies (places with assembly errors).
+Missassebly \citep{Quast} is defined as a position in the assembly where block on the left
+aligns over $1000$ bases away from the block on the right in the reference,
+or blocks align to the opposite strands or to different chromosomes.
 
-\section{Read mapping}
+Now we can count the number of missassemblies and number of contigs containing missassembly.
+We can also look for small differences and count the number of single base difference, either
+substitutions, or insertions, or deletions. 
+We can also introduce metrics similar to $Nx$, called $NAx$, which is computed in a same way
+as $Nx$, but before computing this statistics, we break contigs at missassemblies.
+
+\begin{table}
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\multirow{2}{*}{Assembler} & No. of  & N50        & No. of         & NA50  \\
+                           & contigs & (thousands)& missassemblies & (thousands) \\\hline
+ABySS & 246 & 34 & 1 & 28 \\\hline
+Allpaths-LG & {\bf 12} & {\bf 1092} & {\bf 0} & {\bf 1092} \\\hline
+SGA & 456 & 208 & 0 & 208 \\\hline
+Velvet & 45 & 762 & 17 & 126 \\\hline
+\end{tabular}
+\caption{Comparison of several assemblers on Staphylococcus aureus dataset. Note that some
+  assemblers produce quite high $N50$, but also produce many missassemblies, and their
+$NA50$ is much lower.} 
+\label{tab:gage}
+\end{table}
+
+To provide example of usage of these metrics, we show table (see Table \ref{tab:gage}) from GAGE \citep{gage}, which
+benchmarks performance of several assemblers.
+
+\section{Read Mapping}
 
 Many techniques for evaluating assembly rely on finding
 positions of original reads in the assembly. This process is often called read mapping.
-In this section we will give an overview of read mapping and algorithms and tools used for it.
+In this section we give a brief  overview of algorithms and tools used for read mapping.
 
-The goal of read mapping is to find positions in DNA sequence where the read might be sequenced
-from. We are usually trying to find positions with as smallest edit distance as possible
-(but sometimes we use more complicated metrics, due to prevalence some types of errors in reads).
-Formally we can state that given DNA sequence $S$ and read $R$, the goal of read mapping
-is to find substring $T$ of $S$ such that edit distance between $R$ and $T$ is as small as possible.
+The goal of the read mapping is to find positions in the DNA sequence where the read might have
+originated from. We usually attempt to find positions with the smallest edit distance, 
+but sometimes we use more complicated metrics, mostly due to prevalence of specifix typpes of errors in reads.
+Formally, we can state that given DNA sequence $S$ and read $R$, the goal of the read mapping
+is to find a substring $T$ of $S$ such that the edit distance between $R$ and $T$ is as small as possible.
 
-The exact algorithms for read mapping are variants of classical dynamic programming algorithms
+The exact algorithms for read mapping are variants of a classical dynamic programming algorithms
 for finding edit distance of two strings, like Smith-Watterman algorithm (\cite{sm}).
-Basically we are calculating numbers $T[i][j]$ where $T[i][j]$ is a lowest possible edit
-distance between some suffix of $S[1..i]$ and $R[1..j]$. 
-Unfortunatelly, finding mapping for one read using this algorithm takes $O(|S||R|)$ time,
-which is too much considering that DNA sequence has length at millions and we usually have
-few million reads.
+In particulary, we are calculating numbers $T[i][j]$ where $T[i][j]$ is the lowest possible edit
+distance between some suffix of $S[0..i-1]$ and $R[0..j-1]$. 
+We put:
+$$T[i][0] = 0$$
+$$T[i][j] = \min(T[i-1][j] + 1, T[i][j-1] + 1, T[i-1][j-1] + S[i-1] \neq R[j-1])$$
+
+Extracting mapping from this matrix is a straighforward task.
+Unfortunately, finding mapping for one read using this algorithm takes $O(|S||R|)$ time,
+which is too much considering that the DNA sequence is typically millions bases long and we usually have
+a few million reads.
 
 Practical algorithms for read mapping can be divided into two types:
-Hash based seed and extend algorithms and algorithms based on suffix arrays and their extensions.
+hash based seed-and-extend algorithms and algorithms based on suffix arrays and their extensions.
 
-Hash based algorithms are based on observation that with high
-probability some substring of read of length at least $k$ (where $k$ is somewhere
-between 13 and 20) is conserved without errors. These conserved substring
-are called seeds. 
-We can index the DNA seqeunce and then find all possible seeds matches for read.
-This is usually done using hash tables. After finding seeds we do
-dynamic programming in small area around seed location.
+Hash based algorithms are based on an observation that if we put upper bound on number
+of errors in read, there exists
+some substring of read of length at least $k$ that is conserved without errors,.
+These conserved substrings are called seeds. 
+We can exploit this by indexing the DNA sequence 
+and then finding all possible seeds matches for read.
+This is usually done using hash tables. After finding seeds we use the
+dynamic programming on a small area around the seed location.
 Examples of tools using this approach 
-include BLAST, BLAT and many others \citep{blast,blat}.
+include BLAST, BLAT, and many others \citep{blast,blat}.
 
-Other group of read mappers uses extension of suffix arrays called FM-index
-\citep{fmindex, fmindex2}, which we will now describe:
+Nowadays, lots of read mappers uses extension of suffix arrays called FM-index
+\citep{fmindex, fmindex2}, which we will now describe.
 
 \paragraph{Burrows-Wheeler transform.} Given sequence $S = s_1 s_2 \dots s_n$, where
 $s_n = \$$. Burrows-Wheeler transform (BWT) of $S$ is constructed
 by lexicographically ordering all cyclical rotations of $S$ and then
 taking last characters from each rotations.
-Formally if $S_i$ is rotation starting at $i$-th positions of $S$ and array
+Formally, if $S_i$ is rotation starting at $i$-th positions of $S$ and array
 $X_i$ is index of $i$-th lexicographically smallest rotation, the
 BWT of $S$ is sequence $B = S_{X_1}[n] S_{X_2}[n] \dots S_{X_n}[n]$.
 Using standard algorithms for construction of suffix array we
@@ -123,27 +149,29 @@ can construct BWT of $S$ in $O(|S|)$ time and space.
 TODO obrazok
 
 \paragraph{Indexing using BWT.}
-BWT can be used to find occurrence of string $P$ in $S$ as a substring.
-Denote $C(a)$ as a smallest index $i$ where $S_{X_i}[0] = a$ (it is also
+BWT can be used to find an occurrence of string $P$ in $S$ as a substring.
+Denote $C(a)$ as the smallest index $i$ where $S_{X_i}[0] = a$ (it is also
 a total number of characters smaller than $a$ in $S$).
-Denote $Occ(a,i)$ as as number of occurences of $a$ in $B[1], \dots, B[i]$.
-The goal of the indexing is to find and interval $(b, e)$ such that
+Denote $Occ(a,i)$ as the number of occurences of $a$ in $B[1], \dots, B[i]$.
+The goal of the indexing is to find an interval $(b, e)$ such that
 $b$ is the smallest number where $P$ is a prefix of $S_{X_b}$
 and $e$ is the largest number where $P$ is a prefix of $S_{X_e}$.
-If we know interval $(b, e)$ for $P$, then the interval for
+If we know the interval $(b, e)$ for $P$, then the interval for
 $aP$ is given as:
 $$(C(a) + Occ(a, b - 1) + 1, C(a) + Occ(a, e))$$
 
-Using this formula we can calculate interval for any pattern (note that
-the interval for empty string is $(1, |S|)$). We can also implement
-backtracking to allow inexact matching of the pattern. 
+By starting from an empty string, we can use
+this formula to calculate interval for any pattern, building
+it from the end of pattern. Note that
+the interval for empty string is $(1, |S|)$.
+We can also implement
+a backtracking to allow for inexact matching of the pattern. 
 Improved algorithms for inexact matching are described by \citet{fmindex3}.
 
-To achieve good space complexity we use compressed represenation
-of arrays $B$, $Occ$ and $C$ and some samples from array $X$ (we can reconstruct
-array $X$ using samples and data from $B$).
-
-Example of FM-index based read mappers are Bowtie2, BWA and SOAP
+To achieve good space complexity, we use compressed represenation
+of arrays $B$, $Occ$ and $C$, and some samples from array $X$ (we can reconstruct
+array $X$ using samples and data from $B$). 
+Examples of FM-index based read mappers are Bowtie2, BWA and SOAP
 \citep{bowtie2,fmindex,soap}.
 
 \section{REAPR}
@@ -151,36 +179,42 @@ Example of FM-index based read mappers are Bowtie2, BWA and SOAP
 If we have access to original reads and the assembly we can find locations
 of this reads in the assembly and then compute several statistics which
 can point out to suspicious regions in the assembly.
+This is needed since assemblers use various heuristics and sometimes discard
+some information from reads. 
 
 There are several tools which do this, one of them is REAPR (\cite{Reapr}) which we describe
-in more detail below:
+in more detail below.
 
 REAPR is designed for working with paired reads, so in the following we will assume that
-we have one library of paired reads. REAPR starts by mapping reads to the assembly, i.e. for each read we know locations it the assembly
+we have a single library of paired reads.
+REAPR starts by mapping reads to the assembly, i.e. for each read we know locations it the assembly
 and the edit distance for this mapping.
 
-After mapping step we can calculate following metrics for each base in the assembly:
+After mapping step, we can calculate following metrics for each base in the assembly:
 \begin{itemize}
-\item Read coverage -- how many mapping of reads overlap current position. Low coverage usually indicates assembly error.
-\item Type of read coverage -- we can calculate read coverage for specific conditions such as: reads without pairs, reads with pair with wrong orientation,
-coverage for reads which map with or without reverse complementing.
-\item Read clipping -- sometimes read can be mapped to assembly but a few bases at the end of the reads do not match. We can reads mapped this way as soft-clipped.
-At each base we count the number of soft-clipped reads which mapping starts or end at this base. A high read clipping count can be sign of insertion of deletion
-in the assembly.
-\item Paired coverage -- same as read coverage but we treat properly paired reads as a one long read when calculating coverage.
+\item Read coverage: how many reads are mapped to current position. Low coverage usually indicates assembly error.
+\item Type of read coverage: we can calculate read coverage for specific conditions such as reads without pairs,
+reads with pair with wrong orientation, coverage for reads which map with or without reverse complementing.
+\item Read clipping: sometimes read can be mapped to assembly but a few bases at the end of the reads do not match.
+We call reads mapped this way as soft-clipped.
+At each base, we count the number of soft-clipped reads starting or ending at this base. A high read
+clipping count can be sign of insertion of deletion in the assembly.
+\item Paired coverage: same as read coverage, but we treat properly paired reads as a one long read when calculating coverage.
 \item FCD error -- TODO
 \end{itemize}
 
-REAPR uses this metrics to calculate score at each base and then breaks assembly at places with low score.
+REAPR uses this metrics to calculate score at each base and then breaks assembly at places with low
+score.
+TODO details, obrazok
 
-\section{Probability models}
+\section{Probability Models}
 \label{sec:prob}
-In some cases we have to compare multiple assemblies and decide which one is
+In some cases, we have to compare multiple assemblies and decide which one is
 the best. This can be done using various criteria, but \cite{Ghodsi2013} shows
-that very simple and theoretically sound probalistic model can do the job.
+that a very simple and theoretically sound probalistic model can do the job.
 
 In general, the probabilistic model defines the probability $\Pr(R|A)$ that a set of
-sequencing reads $R$ is observed assuming that assembly $A$ is the
+sequencing reads $R$ is observed assuming that the assembly $A$ is the
 correct assembly of the genome. Since the sequencing itself is a
 stochastic process, it is very natural to characterize concordance of
 reads and an assembly by giving a probability of observing a particular
@@ -273,7 +307,42 @@ Some reads or read pairs do not align well to $A$, and as a result, their
 probability $\Pr(r|A)$ is very low; our approximation by a set of
 high-scoring alignments can even yield zero probability if set $S_r$
 is empty.  Such extremely low probabilities then dominate the log
-likelihood score.  \cite{Ghodsi2013} propose a method that assigns
+likelihood score. \citet{Ghodsi2013} propose a method that assigns
 such a read a score approximating the situation when the read would be
 added as a new contig to the assembly. In practice this usually
 means having lower bound on the probability of generating a read.
+
+To illustrate usufullness of likelihood we present
+few results from \citet{Ghodsi2013} where we compare
+several assemblers and resulting $NA50$ and assembly likelihood,
+and show that there is a good correlation between this measures (see Table
+\ref{tab:like}). More data can be found in \citet{Ghodsi2013}.
+
+\begin{table}
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+Assembler & LAP & N50 (thousands) & NA50 (thousands) \\\hline
+Reference sequence & $-23.509$ & 2873 & 2873 \\\hline
+AbySS & $-24.584$ & 34 & 28 \\\hline
+Allpaths-LG & $-23.760$ & 1092 & 1092 \\\hline
+SOAPdenovo & $-23.862$ & 332 & 288 \\\hline
+Velvet & $-23.925$ & 762 & 126  \\\hline
+\end{tabular}
+\caption{Comparison of several assemblers on Staphylococcus aureus dataset
+using LAP and NA50.}
+\label{tab:like}
+\end{table}
+
+There are also other approach to calculate assembly likelihood
+most notably ALE and CGAL \citep{ALE, CGAL}.
+
+\section{Summary}
+
+In this chapter we provided overview of assembly evalution techniques.
+We showed several basic measures for assembly (like $N50$, $NA50$),
+provided insight into mapping reads on assembly and how to use
+read mapping to find suspicious regions in assembly using REAPR.
+We also demonstrated that likelihood models are good and simple
+tools to compare several assemblies.
+
