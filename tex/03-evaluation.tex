@@ -146,7 +146,6 @@ $X_i$ is index of $i$-th lexicographically smallest rotation, the
 BWT of $S$ is sequence $B = S_{X_1}[n] S_{X_2}[n] \dots S_{X_n}[n]$.
 Using standard algorithms for construction of suffix array we
 can construct BWT of $S$ in $O(|S|)$ time and space.
-TODO obrazok
 
 \paragraph{Indexing using BWT.}
 BWT can be used to find an occurrence of string $P$ in $S$ as a substring.
@@ -200,12 +199,24 @@ We call reads mapped this way as soft-clipped.
 At each base, we count the number of soft-clipped reads starting or ending at this base. A high read
 clipping count can be sign of insertion of deletion in the assembly.
 \item Paired coverage: same as read coverage, but we treat properly paired reads as a one long read when calculating coverage.
-\item FCD error -- TODO
+\item FCD error: At each base we construct a plot of coverage distribution of bases
+  only from pairs which cover given base. The difference between the expected
+  and observed distribution, called FCD errors, is is measured by taking the area between the two plots (see Fig. \ref{fig:fcd}).
 \end{itemize}
 
-REAPR uses this metrics to calculate score at each base and then breaks assembly at places with low
-score.
-TODO details, obrazok
+\begin{figure}
+\centering
+\includegraphics{../figures/fcd.jpg}
+\caption{Example of calculating FCD errors. Fragments covering given base
+shown in red, are used to construct coverage depth plot (rea). The FCD error is the
+area (grey) between the observed (red) plot and ideal (green). Image taken
+from \citet{Reapr}.}
+\label{fig:fcd}
+\end{figure}
+
+REAPR uses this metrics to calculate score at each base 
+(the score calculation is ad hoc algorithm) and then breaks assembly
+at places with low score.
 
 \section{Probability Models}
 \label{sec:prob}
