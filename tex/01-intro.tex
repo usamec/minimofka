@@ -3,10 +3,10 @@
 Knowledge of DNA sequences has become indispensable for basic biological research
 and in numerous applied fields like diagnostics, forensic biology, etc.
 It is also important for understanding cancer, fighting antibiotic resistant bacteria, etc.
-With decreasing cost of DNA sequencing we are able to sequence more organisms
-but also we have to handle much bigger amounts of data. 
+With decreasing cost of DNA sequencing we are able to sequence more organisms,
+but consequently we have to handle much bigger amounts of data. 
 
-Unfortunately we are still not able to read whole DNA sequence at one, we can only
+Unfortunately, we are still not able to read whole DNA sequence at one, we can only
 read it in small pieces and then rely on computational methods of sequence assembly
 to produce whole DNA sequence.
 
@@ -14,7 +14,7 @@ In this work, we describe theoretical background of sequence assembly,
 current algorithms and heuristics used in practice and also related 
 problems of evaluating quality of sequence assembly.
 
-In the rest of this chapter we describe basics of sequence assembly,
+In the rest of this chapter, we describe basics of sequence assembly,
 several real life complications and provide basic overview of theoretical
 formulations and practical algorithms used for sequence assembly.
 
@@ -22,13 +22,12 @@ The second chapter is decicated to de Bruijn graphs, which
 are important data structures in sequence assembly and has many other
 applications in processing DNA sequences.
 
-In the third chapter we discuss various approaches for evaluating
+In the third chapter, we discuss various approaches for evaluating
 quality of the resulting assembly and comparing assemblies.
 
 The fourth chapter contains our PhD project where we
 shortly describe one of our papers and provide multiple
 options for future research.
-
 
 \section{Problem of the Sequence Assembly}
 
@@ -109,7 +108,7 @@ This unknown areas are ofter represented as a strings of several $N$-s.
 We will discuss several attempts of theoretical assembly formulation in
 next sections but first we look into more complications of sequence assembly.
 
-\subsection{Real-life complications}
+\subsection{Real-life Complications}
 
 In practice, there are several complications which make the sequence assembly even harder.
 In the following text we mention the major ones.
@@ -118,8 +117,8 @@ In the following text we mention the major ones.
 The DNA comes in two strands, which are reverse complements to each other.
 
 \begin{definition}[Reverse complement]
-For given DNA sequence $s$ its reverse complement is defined as
-$RC(s) = h(s^R)$, where $h(\cdot)$ is a homomorphism where $h(A) = T, h(C) = G,
+For given DNA sequence $S$, its reverse complement is defined as
+$RC(S) = h(S^R)$, where $h(\cdot)$ is a homomorphism where $h(A) = T, h(C) = G,
 h(G) = C, h(T) = A$. 
 \end{definition}
 
@@ -148,7 +147,7 @@ Some technologies produces reads in pairs for which we know appoximate distance
 in the genome. The total length of reads plus approximate distance between reads
 is called {\bf insert size}.
 
-\subsection{Sequencing technologies}
+\subsection{Sequencing Technologies}
 
 There are several sequecing technologies currently available. They vary
 in many properties like cost, read length, accuracy, etc.
@@ -177,13 +176,13 @@ different technologies (like Illumina + PacBio,
 or multiple libraries of Illumina reads with different insert sizes).
 We will discuss this topic further in section about assembly algorithms. 
 
-\section{Overview of current solutions}
+\section{Overview of Current Solutions}
 
 We will now discuss several better attempts at theoretical
 formulation of sequence assembly and then we will describe currently
 used assembly algorithms.
 
-\subsection{Formalization of the assembly problem}
+\subsection{Formalization of the Assembly Problem}
 
 To sum up previous sections, we are trying to reconstruct DNA seqence from reads,
 which:
@@ -265,7 +264,7 @@ and approximate solutions are not good for practice.
 More popular approach is to design heuristic solutions, which we describe in the next
 section.
 
-\subsection{Assembly algorithms overview}
+\subsection{Assembly Algorithms Overview}
 
 Almost all assembly algorithms used in practice are some form of heuristics
 without well defined formulation, proof of correctness, etc.
