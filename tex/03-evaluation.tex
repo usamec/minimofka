@@ -1,37 +1,68 @@
-\chapter{Evaluating quality of assemblies}
+\chapter{Evaluating Quality of Assemblies}
 
-After performing an assembly we can count several
-interesting statistics, which can tell us how good the assembly is.
+As shown in earlier chapters assembly algorithms are mostly
+heuristics with almost zero guaranties. 
+Result of the assembly are usually input data into several next steps
+of the genome analysis (like finding genes, calculating evolutionary history, ...).
+Because of this, any errors in assembly process will have impact on further analysis.
+Also sometimes we have access to several variants of the assembly and we need
+to choose the best one.
+Thus it is important to evaluate quality of the resulting assembly.
 
-\section{Basic statistics}
+Evaluating quality of an assembly is usually hard problem,
+since we do not have access to the correct answer.
+Due to this we usually resort to use inaccurate indicators, which
+give as at least some idea about assembly quality.
 
-\subsection{Statistics based only on assembly}
+In this chapter we give overview of several techniques and statistics
+for evaluating assembly. We start with simple indicators based
+only on assembly. We also describe indicators based on assembly and correct
+answer (which we have if we are benchmarking assemblers). 
+There are lots of statistics based on mapping reads to assembly. We first give
+overview on mapping reads to assembly and then describe REAPR, which is a tool
+for evaluating assembly. We finish chapter with description
+of probabilistic models for sequence assembly.
 
-This statistics summarize the distribution of lengths of contigs.
+\section{Basic Statistics}
+
+\subsection{Statistics Based Only on Assembly}
+
+To evaluate continuity of the assembly, it is vital
+to look into distribution of length of contigs.
+
+There are many ways to look at the distribution of contigs.
 We give a brief overview of metrics used in QUAST (\cite{Quast}), which
-is standard tool for evaluation assemblies.
+is a standard tool for evaluation of assemblies.
 
-\begin{itemize}
-\item Number of contigs (or number of contigs longer than $x$ -- where usually $x = 1000$).
-\item Length of the largest contig.
-\item Total length of contigs.
-\item $Nx$ (where $0 < x \leq 100$) -- the largest contig length $L$, such that using contigs
-of length $\geq L$ accounts for at least $x \%$ of the bases of the assembly.
-\end{itemize}
+First, we usually look at total length of contigs. We can have expected assembly 
+length from other sources so if we the total length of contigs is far from expected
+value, we can already see a problem with assembly.
+Number of contigs gives us approximate notion of fragmentation of assembly.
+Sometimes it is better to look at number of contigs longer than $x$ -- where usually $x = 1000$,
+since very small contigs are usually some artefact of the assembly process.
+Other statistics for contig length distribution include:
+length of the largest contig and $Nx$ (where $0 < x \leq 100$):
+the largest contig length $L$, such that using contigs
+of length $\geq L$ account for at least $x \%$ of the bases of the assembly.
 
 Note that each of this statistics can be "gambled" so comparing assemblies based
 on this statistics can be only done when we assume, that assembly software does only
-reasonable operations.
+reasonable operations. This often happens in practice, for example
+\citet{gage} shows in his experiments that some assemblers have
+higher N50 but also higher number of errors. 
 
 \subsection{Statistics based on assembly and reference sequence}
 
-Sometimes (especially during evalution as assembly algorithms) we have access to true sequence
-and we can compute various statistics which tell us how many errors are in our assembly.
-Calculating these statistics usually starts with aligning assembly and reference genome, which
+Sometimes (especially during evaluation of assembly algorithms) we have access to 
+the true sequence
+(or almost true sequence), and we can compute various statistics which tell us, how many
+errors are in our assembly.
+Calculating these statistics usually starts with aligning the assembly to the
+reference genome, which
 gives us information in the form:
-"Substring of assembly starting at position $a$, ending at position $b$ can be mapped
-to the substring of reference genomes starting at $c$, ending at $d$ with $e$ edits."
-We called aligned substrings blocks. 
+"Substring of the assembly starting at position $a$ and ending at position $b$ can be mapped
+to the substring of the reference genome starting at $c$ and ending at $d$ with $e$ edits."
+We called these aligned substrings blocks. 
 
 \begin{itemize}
 \item No. of missasemblies -- missassembly is usually defined as a positions where
