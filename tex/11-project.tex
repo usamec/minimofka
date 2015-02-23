@@ -1,39 +1,40 @@
-\chapter{PhD project}
+\chapter{PhD Project}
 
 Our goal is to study sequence assembly algorithms and
 various subproblems associated with them.
 We already published paper about genome assembly by maximum likelihood \citep{GAML}
 which opens several posibilities for further research.
 
-In following section we will shortly describe our assembly algorithm
-and several problems which we want to solve.
-In most cases we plan to introduce some novel ideas
-and evaluate them experimentally.
+In the following section we will shortly describe our assembly algorithm
+and several problems which are actually open for further research.
+In most cases we plan to introduce novel algorithmic ideas
+and evaluate them experimentally on real and simulated datasets.
 
-\section{Genome assembly by maximum likelihood}
+\section{Genome Assembly by Maximum Likelihood}
 
-Our algorithm uses following idea.
-The likelihood  mentioned in \cite{Ghodsi2013} and described in \ref{sec:prob} 
-is though to be a good metric of a quality of the assembly.
-Also it can seamlesly calculate score for various types of read libraries without need
+Our algorithm uses the following idea.
+The likelihood  mentioned in \cite{Ghodsi2013} and described in Section \ref{sec:prob} 
+is thought to be a good metric of the assembly quality.
+Also, it can seamlessly calculate score for various types of read libraries without need
 for any special algorithms and heuristics. 
-Thus our goal will be to produce assembly with highest possible likelihood.
+Thus, our goal will be to produce the assembly with the highest possible likelihood.
 
-The search space of this problem is huge and we need to resort to heuristics.
-Our algorithm consists from three steps:
-The first step is preprocessing, where we signaficantly restrict we search space of the problem
+The search space of this problem is huge, and consequently 
+we need to resort to heuristics.
+Our algorithm consists of three steps.
+The first step is preprocessing, where we signaficantly restrict the search
+space of the problem
 by building de Bruijn graph and restricting our assemblies to set of walks
-in this graph. Next we use simulated anneling to find set of walks
-with maximum likelihood. In postprocessing we look for possible
-ambiguities in the assembly and split our assembly around this ambiguities.
+in this graph. Next, we use simulated anneling to find set of walks
+with a high likelihood (ideally it would be maximum likelihood).
+In postprocessing we look for possible
+ambiguities in the assembly and split our assembly around these ambiguities.
 
 \paragraph{Preprocessing.} In preprocessing we build de Bruijn graph from reads
-using Velvet \cite{Velvet} and apply simple heuristics to this graph
+using Velvet \citep{Velvet} and apply simple heuristics to this graph
  (mainly removing errors and joining vertices which can be joined ambiguously).
-We disallow any heuristics which use paired ended reads and long reads,
-since they may introduce significant errors to the graph.
-After preprocessing our optimization task changes to: Find the set walks
-in de Bruijn graph which induce assembly with highest likelihood.
+After preprocessing, our optimization task changes to find the set walks
+in the de Bruijn graph which induce assembly with the highest likelihood.
 
 \paragraph{Optimization by simulated annealing.}
 
@@ -144,7 +145,7 @@ choose randomly the contig at which we attempt to apply the move.
 %not affecting the performance when such data is 
 %unavailable.
 
-\paragraph{Postprocessing}
+\paragraph{Postprocessing.}
 The assembly obtained by the simulated annealing may contain walks
 with no evidence for a particular configuration of incoming and
 outgoing edges in the assembly graph. This happens for example if a
@@ -183,12 +184,13 @@ of problem.
 \paragraph{Experimental results}
 We developed a prototype for described algorithm, called GAML and
 demonstrated that it can obtain high quality assemblies
-for small genomes (up to ten million bases).
+for small genomes (up to ten million bases). The details
+of the experiments can be found in \citet{GAML}.
 
-\section{Improvements for GAML}
+\section{Improvements of GAML}
 
 We want to improve GAML to be able to assemble larger genomes.
-The room for improvement is mainly in following areas:
+The room for improvement is mainly in the following areas:
 
 \paragraph{Better moves.}
 The current moves are too general and need many tries to
@@ -196,8 +198,8 @@ find an assembly with higher likelihood. We want to develop
 moves which will also rely on some information from reads
 and thus be able to be more precise and improve
 assembly more rapidly. Also our moves
-do not exploit any structure in the de Bruijn graph (except connectivity)
-and this lead to even better moves.
+do not exploit any structure in the de Bruijn graph (except for the connectivity)
+and this could lead to even better moves.
 
 \paragraph{Marking some moves as most likely good and applying moves in batches.}
 If we are able to use some information from reads and de Bruijn graph
@@ -207,80 +209,89 @@ batch and evaluate assembly likelihood after doing all of them
 and not after each one.
 
 \paragraph{More efficient evalution of assembly likelihood.}
-This includes reducing ammount of calculation during evalution.
+This includes reducing amount of calculation during evalution.
 Now, we still calculate likelihood for each read (our optimization
-mainly reduce time spend in aligning reads). This can
-be improved by using clever memoization patterns.
-Further more we can reduce memory requirements
-of read indexing as discussed in next section.
+mainly reduces time spent on aligning reads). This can
+be improved by using smarter memoization patterns.
+Furthermore, we can reduce memory requirements
+of read indexing, as discussed in next section.
 
-\section{Efficient indexing of read libraries}
+\section{Efficient Indexing of Read Libraries}
 
 We need to keep index of all reads to be
 able to quickly evaluate assembly likelihood in our assembler.
 Our current implemention of index uses hash map, which
-is has big memory requirements.
-Of of our goals is to develop data structure for indexing
+has big memory requirements.
+Our goal is to develop a data structure for indexing
 reads which has smaller memory footprint.
 This data structure should be able to index reads
-and answer queries of type: which reads contains
-given $k$-mer (with upper bound on $k$ specified in the time
-of constructing the data structure). Optionaly,
+and answer queries of type: which reads contain
+a given $k$-mer (with an upper bound on $k$ specified at the time
+of constructing the data structure). Optionally,
 it can support alignment of reads to given sequence.
 
 There has been several data structures proposes for
-indexing reads, like \cite{GKArrays} and \cite{CGKArrays}.
+indexing reads, e.g. \cite{GKArrays} and \cite{CGKArrays}.
 None of these data structures exploit the fact
 that reads come from the same underlying sequence.
 
-We will try to desing data structure which will try to do the following:
-First it will find some appoximation of the underlying sequence.
-This is task which is similar to sequence assembly, but our goal
-is not to exactly reconstruct the underlying sequence, but having small
-representation of reads. Thus we can collapse repeats and do other things
-which are impossible during sequence assembly.
-This representation can be either one string or graph similar to
-de Bruijn graph. Then each read can be represented
-as a subpart of the representation plus some small edits (since
+In our proposed approach we will
+first find some appoximation of the underlying sequence.
+This task is similar to the sequence assembly, but our goal
+is not to reconstruct the underlying sequence exactly, but achieving a compact
+representation of reads. Thus, we can collapse repeats, and do other things
+which are inadvisable during sequence assembly.
+This representation can be either one string or a graph similar to
+de Bruijn graph. Then, each read can be represented
+as a part of the representation plus some small edits (since
 reads can contain errors).
 
-The querying will be done by search for $k$-mer in the underlying
-sequence and then finding relevant reads connected to resulting
+The querying will be done by search for $k$-mers in the underlying
+sequence and then finding relevant reads connected to the resulting
 parts of the underlying sequence. We also believe
 that we can extend the query for finding aligments of reads to a given sequence.
 
-\section{Algorithms for reads with high number of errors}
+\section{Algorithms for Reads with High Number of Errors}
 
-The most recent technologies like PacBio and Oxford
-Nanopore produce reads with high number of errors
-($15\%$ for PacBio \cite{PacbioToCA}, $35\%$ for Oxford Nanopore \cite{oxford}).
-The current tools have problems with working with such errornous reads.
+The most recent technologies like PacBio \citep{PacbioToCA} and Oxford
+Nanopore \citep{oxford} produce reads with high number of errors
+($15\%$ for PacBio \citep{PacbioToCA}, $35\%$ for Oxford Nanopore \citep{oxford}).
+Current tools are not designed to work with such erroneous reads.
 
-There are several possible tasks with potential for further reseach:
+There are several possible directions for further reseach:
 
-\paragraph{Mapping reads to genome.} The state of art tool
-for this task is BLASR \cite{BLASR}. We believe
+\paragraph{Mapping reads to the genome.} The state of art tool
+for this task is BLASR \citep{BLASR}. We believe
 that it can be further improved by ideas for aligning errornous reads
-mentioned in \cite{myers2014efficient}. 
-This ideas are mainly: Use sorting and merging instead of indexing with hash maps. 
-Cleverly cutting search space in dynamic programming for finding mapping
+mentioned in \citet{myers2014efficient}. 
+Myers uses sorting and merging instead of indexing with hash maps,
+which is in practice faster due to better cache locality.
+He also cleverly cuts search space in dynamic programming for finding mapping
 with smallest edit distance.
 We can also use ideas from \cite{MHAP}, which are mainly filtering
 possible matches by using Jaccard similarity of $k$-mers in relevant areas
 and using min-hashing.
 
 \paragraph{Self correction of reads.}
-Currently the typical procedure for assembling errornous reads
+Currently, a typical procedure for assembling errornous reads
 starts with aligning of reads to each other, then using this alignments
 to correct given reads and then running overlap-layout-consensus assembler
 as was done in \cite{MHAP}.
 The most time consuming step is the alignment of reads.
-We believe that if we have big coverage (around $40x$ and more) then
+We believe that if we have big coverage (around $40$ times and more) then
 we do not need precise alignment of reads and that we can
 correct reads using much faster heuristics. For example
 we can mark some areas in reads as "probably correct" if we can
 find support for them in other reads. Then we can
 use this sequencing for correcting reads.
+
+\paragraph{Mapping contigs to long reads without basecalling.}
+Reading DNA is fuzzy process and most of the DNA sequencing
+methods rely on probabilistic models to produce final DNA
+from raw data. The process of producing final DNA is called basecalling.
+We think that we could produces better alignments when
+we use raw data instead of DNA sequences, since they can give
+us probability distributions for possible errors. 
 
 \label{LastPage}
 
