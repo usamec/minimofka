@@ -103,19 +103,19 @@ In this section we give a brief  overview of algorithms and tools used for read 
 
 The goal of the read mapping is to find positions in the DNA sequence where the read might have
 originated from. We usually attempt to find positions with the smallest edit distance, 
-but sometimes we use more complicated metrics, mostly due to prevalence of specifix typpes of errors in reads.
+but sometimes we use more complicated metrics, mostly due to prevalence of specific types of errors in reads.
 Formally, we can state that given DNA sequence $S$ and read $R$, the goal of the read mapping
 is to find a substring $T$ of $S$ such that the edit distance between $R$ and $T$ is as small as possible.
 
 The exact algorithms for read mapping are variants of a classical dynamic programming algorithms
 for finding edit distance of two strings, like Smith-Watterman algorithm (\cite{sm}).
-In particulary, we are calculating numbers $T[i][j]$ where $T[i][j]$ is the lowest possible edit
+In particularly, we are calculating numbers $T[i][j]$ where $T[i][j]$ is the lowest possible edit
 distance between some suffix of $S[0..i-1]$ and $R[0..j-1]$. 
 We put:
 $$T[i][0] = 0$$
 $$T[i][j] = \min(T[i-1][j] + 1, T[i][j-1] + 1, T[i-1][j-1] + S[i-1] \neq R[j-1])$$
 
-Extracting mapping from this matrix is a straighforward task.
+Extracting mapping from this matrix is a straightforward task.
 Unfortunately, finding mapping for one read using this algorithm takes $O(|S||R|)$ time,
 which is too much considering that the DNA sequence is typically millions bases long and we usually have
 a few million reads.
@@ -151,7 +151,7 @@ can construct BWT of $S$ in $O(|S|)$ time and space.
 BWT can be used to find an occurrence of string $P$ in $S$ as a substring.
 Denote $C(a)$ as the smallest index $i$ where $S_{X_i}[0] = a$ (it is also
 a total number of characters smaller than $a$ in $S$).
-Denote $Occ(a,i)$ as the number of occurences of $a$ in $B[1], \dots, B[i]$.
+Denote $Occ(a,i)$ as the number of occurrences of $a$ in $B[1], \dots, B[i]$.
 The goal of the indexing is to find an interval $(b, e)$ such that
 $b$ is the smallest number where $P$ is a prefix of $S_{X_b}$
 and $e$ is the largest number where $P$ is a prefix of $S_{X_e}$.
@@ -167,7 +167,7 @@ We can also implement
 a backtracking to allow for inexact matching of the pattern. 
 Improved algorithms for inexact matching are described by \citet{fmindex3}.
 
-To achieve good space complexity, we use compressed represenation
+To achieve good space complexity, we use compressed representation
 of arrays $B$, $Occ$ and $C$, and some samples from array $X$ (we can reconstruct
 array $X$ using samples and data from $B$). 
 Examples of FM-index based read mappers are Bowtie2, BWA and SOAP
@@ -208,7 +208,7 @@ clipping count can be sign of insertion of deletion in the assembly.
 \centering
 \includegraphics{../figures/fcd.jpg}
 \caption{Example of calculating FCD errors. Fragments covering given base
-shown in red, are used to construct coverage depth plot (rea). The FCD error is the
+shown in red, are used to construct coverage depth plot (red). The FCD error is the
 area (grey) between the observed (red) plot and ideal (green). Image taken
 from \citet{Reapr}.}
 \label{fig:fcd}
@@ -222,7 +222,7 @@ at places with low score.
 \label{sec:prob}
 In some cases, we have to compare multiple assemblies and decide which one is
 the best. This can be done using various criteria, but \cite{Ghodsi2013} shows
-that a very simple and theoretically sound probalistic model can do the job.
+that a very simple and theoretically sound probabilistic model can do the job.
 
 In general, the probabilistic model defines the probability $\Pr(R|A)$ that a set of
 sequencing reads $R$ is observed assuming that the assembly $A$ is the
@@ -274,7 +274,7 @@ $$T[x,y] = T[x-1,y-1]\Pr(Subs(A[x], r[y])) + T[x,y-1]\Pr(Ins(r[y])) +
 T[x-1,y]\Pr(Del(A[x]))$$
 
 Where $A[x], r[y]$ represents bases at the assembly at position $x$ and in read at
-position $y$ respectively and $Subs, Ins, Del$ represents events of substition, insertion
+position $y$ respectively and $Subs, Ins, Del$ represents events of substitution, insertion
 and deletion.
 
 However this dynamic programming is too time consuming. 
@@ -291,7 +291,7 @@ where $m_j$ is the number of matches in the $j$-th alignment, and
 $s_j$ is the number of mismatches and indels implied by this alignment.
 
 \paragraph{Paired reads.}
-Likelihood model can accomodate also paired reads.
+Likelihood model can accommodate also paired reads.
 We assume that the insert size distribution in a set of reads $R$ 
 can be modeled by the normal
 distribution with known mean $\mu$ and standard deviation $\sigma$.
@@ -350,7 +350,7 @@ most notably ALE and CGAL \citep{ALE, CGAL}.
 
 \section{Summary}
 
-In this chapter we provided overview of assembly evalution techniques.
+In this chapter we provided overview of assembly evaluation techniques.
 We showed several basic measures for assembly (like $N50$, $NA50$),
 provided insight into mapping reads on assembly and how to use
 read mapping to find suspicious regions in assembly using REAPR.

@@ -3,7 +3,7 @@
 Our goal is to study sequence assembly algorithms and
 various subproblems associated with them.
 We already published paper about genome assembly by maximum likelihood \citep{GAML}
-which opens several posibilities for further research.
+which opens several possibilities for further research.
 
 In the following section we will shortly describe our assembly algorithm
 and several problems which are actually open for further research.
@@ -22,10 +22,10 @@ Thus, our goal will be to produce the assembly with the highest possible likelih
 The search space of this problem is huge, and consequently 
 we need to resort to heuristics.
 Our algorithm consists of three steps.
-The first step is preprocessing, where we signaficantly restrict the search
+The first step is preprocessing, where we significantly restrict the search
 space of the problem
 by building de Bruijn graph and restricting our assemblies to set of walks
-in this graph. Next, we use simulated anneling to find set of walks
+in this graph. Next, we use simulated annealing to find set of walks
 with a high likelihood (ideally it would be maximum likelihood).
 In postprocessing we look for possible
 ambiguities in the assembly and split our assembly around these ambiguities.
@@ -123,7 +123,7 @@ using the following moves (and more others):
   connecting two long contigs in the same walk, resulting in two
   shorter walks.
 \item \emph{Repeat interchange.} (Fig.\ref{fig:moves}c) 
-  If a long contg has several incoming and outgoing walks
+  If a long contig has several incoming and outgoing walks
   we try to swap pairing of incoming and outgoing edges.
   %If a long
   %contig has several incoming and outgoing walks, we optimize the
@@ -159,7 +159,7 @@ we break the corresponding walks into shorter contigs
 to avoid assembly errors. 
 
 \paragraph{Fast likelihood evaluation}
-In each step of the simulated anneling we need to calculate
+In each step of the simulated annealing we need to calculate
 the assembly likelihood. This step involves
 alignment of a large number of reads to the assembly.
 However, only a small part of the assembly is changed in each
@@ -208,8 +208,8 @@ assembly likelihood". Then we can make few of this moves in one
 batch and evaluate assembly likelihood after doing all of them
 and not after each one.
 
-\paragraph{More efficient evalution of assembly likelihood.}
-This includes reducing amount of calculation during evalution.
+\paragraph{More efficient evaluation of assembly likelihood.}
+This includes reducing amount of calculation during evaluation.
 Now, we still calculate likelihood for each read (our optimization
 mainly reduces time spent on aligning reads). This can
 be improved by using smarter memoization patterns.
@@ -220,7 +220,7 @@ of read indexing, as discussed in next section.
 
 We need to keep index of all reads to be
 able to quickly evaluate assembly likelihood in our assembler.
-Our current implemention of index uses hash map, which
+Our current implementation of index uses hash map, which
 has big memory requirements.
 Our goal is to develop a data structure for indexing
 reads which has smaller memory footprint.
@@ -236,7 +236,7 @@ None of these data structures exploit the fact
 that reads come from the same underlying sequence.
 
 In our proposed approach we will
-first find some appoximation of the underlying sequence.
+first find some approximation of the underlying sequence.
 This task is similar to the sequence assembly, but our goal
 is not to reconstruct the underlying sequence exactly, but achieving a compact
 representation of reads. Thus, we can collapse repeats, and do other things
@@ -249,7 +249,7 @@ reads can contain errors).
 The querying will be done by search for $k$-mers in the underlying
 sequence and then finding relevant reads connected to the resulting
 parts of the underlying sequence. We also believe
-that we can extend the query for finding aligments of reads to a given sequence.
+that we can extend the query for finding alignments of reads to a given sequence.
 
 \section{Algorithms for Reads with High Number of Errors}
 
@@ -258,11 +258,11 @@ Nanopore \citep{oxford} produce reads with high number of errors
 ($15\%$ for PacBio \citep{PacbioToCA}, $35\%$ for Oxford Nanopore \citep{oxford}).
 Current tools are not designed to work with such erroneous reads.
 
-There are several possible directions for further reseach:
+There are several possible directions for further research:
 
 \paragraph{Mapping reads to the genome.} The state of art tool
 for this task is BLASR \citep{BLASR}. We believe
-that it can be further improved by ideas for aligning errornous reads
+that it can be further improved by ideas for aligning erroneous reads
 mentioned in \citet{myers2014efficient}. 
 Myers uses sorting and merging instead of indexing with hash maps,
 which is in practice faster due to better cache locality.
@@ -273,7 +273,7 @@ possible matches by using Jaccard similarity of $k$-mers in relevant areas
 and using min-hashing.
 
 \paragraph{Self correction of reads.}
-Currently, a typical procedure for assembling errornous reads
+Currently, a typical procedure for assembling erroneous reads
 starts with aligning of reads to each other, then using this alignments
 to correct given reads and then running overlap-layout-consensus assembler
 as was done in \cite{MHAP}.

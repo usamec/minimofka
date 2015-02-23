@@ -31,11 +31,11 @@ distributed hash tables \citep{koorde}.
 
 De Bruijn graphs used for sequence assembly
 \citep{pevzner2001eulerian,Velvet} have few modifications
-to accomodate for possibility of reads coming from both strands of DNA.
+to accommodate for possibility of reads coming from both strands of DNA.
 
 For each vertex $v$ there is a twin vertex $v^{'}$ which
 represents reverse complemented $k$-mer. Union of $v$ and $v^{'}$ is called a block.
-During manipulation of De Bruijn graph any change applied to node $v$ is also symetrically
+During manipulation of De Bruijn graph any change applied to node $v$ is also symmetrically
 applied to its twin $v^{'}$.
 To ensure that some $k$-mer is not the same as its reverse complement, $k$ must be an odd number.
 
@@ -44,7 +44,7 @@ $k-1$ bases of $u$ are same as the first $k-1$ bases in $v$. Also note that
 if there is an edge between vertices $u$, $v$, there is an inverted edge between their twins,
 i.e. there is an edge from $v^{'}$ to $u^{'}$.
 
-We construct De Bruijn graph from reads in a straighforward way.
+We construct De Bruijn graph from reads in a straightforward way.
 We extract every $k$-mer from each read and its reverse complement.
 Then we join by edge each pair of $k$-mers which are consecutive in some read.
 Some assemblers also record simple statistics that will be useful in later
@@ -77,8 +77,8 @@ Euler assembler \citep{pevzner2001eulerian})solves some instances of Eulerian su
 using simple transformations which transform Eulerian superpath instance to equivalent Eulerian path instance.
 
 Other assemblers like Velvet \citep{Velvet} just join vertices which can be joined
-unambiguosly, i.e. they join vertices $u$, $v$ is there is an edge from $u$ to $v$ and
-it is only edge comming out of $u$ and only edge comming into $v$. After this joining
+unambiguously, i.e. they join vertices $u$, $v$ is there is an edge from $u$ to $v$ and
+it is only edge coming out of $u$ and only edge coming into $v$. After this joining
 each vertex represents one contig of the assembly.
 
 \subsection{Handling Sequencing Errors}
@@ -98,7 +98,7 @@ each vertex represents one contig of the assembly.
 Sequencing errors in reads increase complexity of the de Bruijn graph
 \citep{pevzner2001eulerian}. The common artefacts in a graph that
 appear due to sequencing errors are tips and bubbles
-(see Fig. \ref{fig:tips}, \ref{fig:bubble}). Assemblers like Velvet \citep{Velvet}, ABySS \citep{Abyss} handle
+(see Fig. \ref{fig:tips}, \ref{fig:bubble}). Assemblers like Velvet \citep{Velvet}, Abyss \citep{Abyss} handle
 errors directly during the construction of de Bruijn graph by detecting these artefacts
 and removing them.
 
@@ -109,7 +109,7 @@ Instead several more sophisticated techniques have been proposed to remove
 most of the artefacts in de Bruijn graph.
 
 \paragraph{Removing tips.} A tip is chain of vertices disconnected at one end. 
-Tips usually represent some local errors in the reads. Their removal is pretty straighforward
+Tips usually represent some local errors in the reads. Their removal is pretty straightforward
 and removing them does not destroy connectivity in the graph. But sometimes the tips
 could represent correct sequence interupted by a gap in the coverage.
 Velvet \citep{Velvet} removes tips, which are at most $2k$ bases long and the edge starting
@@ -124,11 +124,11 @@ which is vertex $x$.}
 \label{fig:bubblerem}
 \end{figure}
 
-\paragraph{Removing bubbles.} Bulles are two or more paths which share start and end vertices
+\paragraph{Removing bubbles.} Bubbles are two or more paths which share start and end vertices
 and contain similar sequences.
 Such bubbles are typically caused by small error in the middle of the read.
 Velvet finds such similar paths using the following algorithm:
-It starts breadth first search like algorithm from an arbitrary vertex, but considers higher converage
+It starts breadth first search like algorithm from an arbitrary vertex, but considers higher coverage
 arcs as shorter. Whenever it encounters previously visited vertex $v$ it tries to find closest common ancestor
 of the current path and shortest path to $v$ (see Fig. \ref{fig:bubblerem}). Then it extract
 sequences belonging to both paths and
@@ -137,8 +137,8 @@ if these two paths are judged to be similar enough, the longer path is merged in
 \bigskip
 
 Other option is to use tools like QUAKE \citep{Quake}, which try to correct reads
-without assembling them. This tools usualy consider $k$-mers with low abundance
-as errornous and try to correct them using few simple edits in reads.
+without assembling them. This tools usually consider $k$-mers with low abundance
+as erroneous and try to correct them using few simple edits in reads.
 
 After correcting for errors, we usually simplify de Bruijn graph by joining vertices
 with unambiguous connection as mentioned above. 
@@ -149,8 +149,8 @@ In the next section we will look more into handling paired reads.
 
 \section{Handling Paired Reads}
 
-De Bruijns graphs do not incorporate any information from paired reads.
-In this chapter we describe two options for incorpoating this information:
+De Bruijn graphs do not incorporate any information from paired reads.
+In this chapter we describe two options for incorporating this information:
 heuristic postprocessing and paired e Bruijn graphs.
 
 \subsection{Heuristic Postprocessing for Paired Reads}
@@ -161,7 +161,7 @@ to reasonably long vertices in De Bruijn graph. Two vertices are considered link
 if there are at least $p$ read pairs (usually $p=5$) which join the vertices.
 We denote $P_i$ the set of vertices which are linked to vertex $v_i$.
 Then we perform search for single unique path from $v_i$ through De Bruijn graph which visits
-each vertex from $P_i$. We usualy limit this search by estimated distance from $v_i$ to each element
+each vertex from $P_i$. We usually limit this search by estimated distance from $v_i$ to each element
 from $P_i$. This process is performed for each vertex and final consistent paths
 are stitched to final assembly.
 
@@ -177,9 +177,9 @@ To reduce computational complexity of this approach they split assembly problem
 into several regions and assemble them separately in process called localization.
 Localization starts by building de Bruijn graph of the assembly and building initial
 contigs from it. Then we select long enough contigs as seeds. 
-The region of an assembly is build from seed, its neighbourhood (everything
-in 10000 bases around the seed) and all reads from the neighbourhood.
-We assemble each region separetely and then merge result into final assembly.
+The region of an assembly is build from seed, its neighborhood (everything
+in 10000 bases around the seed) and all reads from the neighborhood.
+We assemble each region separately and then merge result into final assembly.
 
 \subsection{Paired de Bruijn Graphs}
 
@@ -197,7 +197,7 @@ For simplicity, we will ignore reverse complements and problems associated with 
 Let $k$-bimer be a pair of two $k$-mers $(a, b)$. Each vertex 
 represents one $k$-bimer and edges represent
 consecutive $k$-bimers similarly as in an ordinary de Bruijn graph. 
-From each pair of reads, we will produce $k$-bimers in a straighforward way:
+From each pair of reads, we will produce $k$-bimers in a straightforward way:
 $i$-th $k$-bimer will be created using the $i$-th $k$-mer from the first read and 
 the $i$-th $k$-mer from the second read.
 Edges in the graph are given by consecutive pairs of $k$-mers from reads.
@@ -207,7 +207,7 @@ $k$-bimers would be: $(ACC, TCG), (CCT, CGA), (CTG, GAT)$ and each consecutive b
 would be joined by edge.
 
 To create the assembly we can use same methods as in ordinary de Bruijn graphs
-(euler paths or joining umambigously connected vertices).
+(Euler paths or joining unambiguously connected vertices).
 
 \paragraph{Paired de Bruijn graphs with approximate insert sizes.}
 Lets assume that insert sizes are from the interval $d \pm \Delta$.
@@ -236,7 +236,7 @@ rather long reads (up to 20000 bases and more) but with many errors
 ($15\%$ error rate). There is a need to correct these errors in a reasonably
 efficient way. Constructing de Bruijn graph directly from PacBio reads
 cannot lead to anything usefull since we can expect one of every six bases to be
-incorect, so standard correction techniques for de Bruijn graph cannot be applied.
+incorrect, so standard correction techniques for de Bruijn graph cannot be applied.
 Also directly applying overlap-layout-consensus framework is not a good idea, since
 with such high error rate we can expect many false positives in overlaps.
 

@@ -18,7 +18,7 @@ In the rest of this chapter, we describe basics of sequence assembly,
 several real life complications and provide basic overview of theoretical
 formulations and practical algorithms used for sequence assembly.
 
-The second chapter is decicated to de Bruijn graphs, which
+The second chapter is dedicated to de Bruijn graphs, which
 are important data structures in sequence assembly and has many other
 applications in processing DNA sequences.
 
@@ -40,7 +40,7 @@ In most cases locations of these substrings are sampled uniformly.
 The goal of sequence assembly is to reconstruct original string.
 
 Perhaps the oldest formulation of this task as a computer science
-problem is the shortest common supersting problem:
+problem is the shortest common superstring problem:
 
 \begin{definition}[Shortest common supersting]
 Given set of strings $\mathcal{P} = \{S_1, S_2, \dots, S_k\}$, the shortest
@@ -63,7 +63,7 @@ and it is conjectured that this bound is tight.
 \medskip
 
 Over the years, it has been shown
-that this formuation does not represent the underlying problem very well.
+that this formulation does not represent the underlying problem very well.
 On one hand, the problem is difficult to solve computationally, and the
 approximation algorithms do not yield very practical results.
 On the other hand, this formulation does not consider some specifics of the underlying data.
@@ -94,10 +94,10 @@ the sequence:
 
 $$AA\textcolor{red}{CTCT}\textcolor{blue}{CC}\textcolor{red}{CTCT}\textcolor{green}{GG}\textcolor{red}{CTCT}TT$$
 
-Due to these problems it is obvious that finding shortest common supersting
+Due to these problems it is obvious that finding shortest common superstring
 is not a good formulation for sequence assembly. 
 In practice our goals are usually more humble and we are satisfied with reconstructing
-umambigous parts of the DNA sequence. Assembly tools
+unambiguous parts of the DNA sequence. Assembly tools
 usually produce substrings from the original sequence called {\bf contigs}.
 Sometimes they are also able to detect approximate distance between contigs
 (but cannot infer DNA sequence between them), so they join
@@ -130,7 +130,7 @@ Many organisms have multiple sets of chromosomes. For example humans have one se
 inherited from the mother and other set inherited from the father, so each chromosome
 is present in two copies. This two copies of each chromosome are almost identical but
 contain some differences (sometimes only changes in one base, but sometimes also
-bigger variations). This poses additional chanllenge since we are trying to recostruct
+bigger variations). This poses additional challenge since we are trying to reconstruct
 multiple similar sequences.
 
 \paragraph{Errors in reads.}
@@ -143,13 +143,13 @@ There are also reads which do not belong to the sequenced genome, but are result
 of a contamination.
 
 \paragraph{Paired reads}
-Some technologies produces reads in pairs for which we know appoximate distance
+Some technologies produces reads in pairs for which we know approximate distance
 in the genome. The total length of reads plus approximate distance between reads
 is called {\bf insert size}.
 
 \subsection{Sequencing Technologies}
 
-There are several sequecing technologies currently available. They vary
+There are several sequencing technologies currently available. They vary
 in many properties like cost, read length, accuracy, etc.
 We summarize currently used sequencing technologies in Table \ref{tab:techs},
 based on data from \citet{seq1,seq2}.
@@ -184,7 +184,7 @@ used assembly algorithms.
 
 \subsection{Formalization of the Assembly Problem}
 
-To sum up previous sections, we are trying to reconstruct DNA seqence from reads,
+To sum up previous sections, we are trying to reconstruct DNA sequence from reads,
 which:
 \begin{itemize}
 \itemsep-0pt
@@ -199,7 +199,7 @@ which:
 
 To account for the possibility of sequencing errors, 
 \citet{kececioglu1995combinatorial}
-proposed a variant of shortest common supersting problem. 
+proposed a variant of shortest common superstring problem. 
 
 \begin{definition}{Shortest common superstring with errors.}
 Given set of reads $\mathcal{F}$ and error rate $\varepsilon$, find
@@ -243,11 +243,11 @@ Now we can define DNA sequence reconstruction problem in a better way:
 \begin{definition}{DNA sequence reconstruction problem.}
 Given set of reads $\mathcal{F}$ and error rate $\varepsilon$, find
 a sequence $S$ and $\varepsilon$-valid layout which has minimal
-maximum deviation between observed and source distrition of reads.
+maximum deviation between observed and source distribution of reads.
 \end{definition}
 
 There are none theoretical results known to us about this formulation
-(the original paper focuses more on devoloping branch-and-bound algorithm
+(the original paper focuses more on developing branch-and-bound algorithm
 than on theoretical results about NP-hardness and approximation).
 But we suspect that it is also NP-hard as others.
 
@@ -258,7 +258,7 @@ Also this formulation can be extended to account for contaminated and paired
 reads.
 
 Nevertheless, these formulations have never been used to design
-a pracical sequence assembler, because they exact solutions are too slow
+a practical sequence assembler, because they exact solutions are too slow
 and approximate solutions are not good for practice.
 
 More popular approach is to design heuristic solutions, which we describe in the next
@@ -273,7 +273,7 @@ without well defined formulation, proof of correctness, etc.
 %assumes error-free reads).
 In general, these heuristics proceed to "glue" reads which can be
 unambiguously glued together and building assembly step by step
-without following clear optimalization criteria.
+without following clear optimization criteria.
 They use efficient representation of overlaps between reads and try to resolve
 ambiguous regions using paired reads and long reads.
 
@@ -290,19 +290,19 @@ complexity to the number of reads (but can be often speeded up by various heuris
 After finding overlaps we usually perform removing of transitive edges (we remove edge
 from $u$ to $w$ if there is an vertex $v$ and edges from $u$ to $v$ and from $v$ to $w$).
 In the layout step we try to find reasonable layout of reads in the assembly.
-Assemblers usually start by joining reads which can be joined unambiguosly (i.e.
-when read $u$ is only one following read $v$ and $v$ is only one preceeding $u$).
+Assemblers usually start by joining reads which can be joined unambiguously (i.e.
+when read $u$ is only one following read $v$ and $v$ is only one proceeding $u$).
 and then use information from paired reads to resolve areas around repeats.
 
 Finally, in consensus step we perform base calling, e. g. if 10 reads overlap in
-one possitions and 9 of them says the base should be $A$ and one says $G$ we decide the base to
+one positions and 9 of them says the base should be $A$ and one says $G$ we decide the base to
 be $A$.
 
 Typical example of OLC algorithm is Celera \citep{Celera}.
 It was mainly used for assembling of Sanger reads. But the OLC
 framework was not suitable for assembling Illumina reads due to large number
 of rather short reads (three to ten times shorter than Sanger reads), which
-would dramaticaly increase the number of overlaps. 
+would dramatically increase the number of overlaps. 
 The OLC algorithms has gained popularity after introducing PacBio reads
 which have much higher length (so we have fewer reads) but much higher error rate.
 Due to high error rate, the overlap phase is quite challenging, but
